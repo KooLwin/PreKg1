@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pre KG English</title>
     
-    <!-- iOS & Standalone App Meta Tags -->
+    <!-- Standalone App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pre KG English">
+    
+    <!-- Windows / Desktop Fullscreen -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Pre KG English">
+    
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
     
     <style>
         * {
@@ -20,6 +27,15 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Fullscreen mode - no title bar */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f2f6fc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
         body {
             background: linear-gradient(145deg, #f2f6fc, #e8f0fe);
             min-height: 100vh;
@@ -27,11 +43,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             padding: 16px;
             margin: 0;
-            /* iOS Safe Area */
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Windows Fullscreen - hide scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hide title bar in Windows when in fullscreen mode */
+        @media all and (display-mode: fullscreen) {
+            body {
+                overflow: hidden;
+            }
         }
 
         .container {
@@ -47,6 +73,8 @@
             position: relative;
             transition: all 0.2s ease;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         h1 {
@@ -272,6 +300,27 @@
             transform: scale(0.92);
         }
 
+        /* Offline indicator */
+        .offline-badge {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .offline-badge.show {
+            display: block;
+        }
+
         /* Responsive */
         @media (max-width: 420px) {
             .container {
@@ -283,7 +332,7 @@
             button { font-size: 16px; padding: 15px 16px; }
         }
 
-        /* iOS style status bar handling */
+        /* iOS safe area handling */
         @supports (padding: max(0px)) {
             .container {
                 padding-left: max(24px, env(safe-area-inset-left));
@@ -293,6 +342,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Offline Badge -->
+    <div class="offline-badge" id="offlineBadge">📡 Offline Mode</div>
 
     <!-- iOS style close button -->
     <div class="close-btn" id="closeButton">✕</div>
@@ -321,6 +373,37 @@
         <div class="security-badge">🔒 Secure System</div>
     </div>
 
+    <!-- Service Worker Registration for Caching & Offline Support -->
+    <script>
+        // Register Service Worker for offline caching
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        // Detect online/offline status
+        window.addEventListener('online', function() {
+            document.getElementById('offlineBadge').classList.remove('show');
+            showInfo('📶 Back online!');
+        });
+
+        window.addEventListener('offline', function() {
+            document.getElementById('offlineBadge').classList.add('show');
+            showInfo('📡 Offline mode - using cached data');
+        });
+
+        // Check initial status
+        if (!navigator.onLine) {
+            document.getElementById('offlineBadge').classList.add('show');
+        }
+    </script>
+
+    <!-- Main Application Script -->
     <script>
         (function() {
             // ---------- CONFIG ----------
@@ -329,6 +412,7 @@
             const trialKey = 'prekgPhonicsTrial';
             const systemKey = 'prekgPhonicsSystem';
             const gateExpiryKey = 'accessGateExpiry';
+            const CACHE_VERSION = 'v1';
 
             // DOM refs
             const secretInput = document.getElementById('secretCode');
@@ -340,6 +424,7 @@
             const trialStatus = document.getElementById('trialStatus');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const closeBtn = document.getElementById('closeButton');
+            const offlineBadge = document.getElementById('offlineBadge');
 
             // ---------- HELPERS ----------
             function showLoading() {
@@ -439,16 +524,60 @@
                 showInfo('📋 Please fill out the form to request your free trial code.');
             }
 
-            // ---------- FETCH CODES ----------
+            // ---------- FETCH CODES with Cache ----------
             async function fetchCodes() {
                 try {
+                    // Try network first
                     const resp = await fetch(scriptUrl + '?action=fetchCodes&_=' + Date.now());
-                    return await resp.json();
-                } catch (e) {
-                    console.error('fetchCodes error:', e);
+                    const data = await resp.json();
+                    
+                    // Cache the response
+                    try {
+                        const cache = await caches.open('prekg-codes-' + CACHE_VERSION);
+                        await cache.put(scriptUrl + '?action=fetchCodes', new Response(JSON.stringify(data), {
+                            headers: { 'Content-Type': 'application/json' }
+                        }));
+                    } catch (e) {
+                        console.log('Cache save failed:', e);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('Network error, trying cache:', error);
+                    
+                    // Try to get from cache
+                    try {
+                        const cache = await caches.open('prekg-codes-' + CACHE_VERSION);
+                        const cachedResponse = await cache.match(scriptUrl + '?action=fetchCodes');
+                        if (cachedResponse) {
+                            const data = await cachedResponse.json();
+                            showInfo('📡 Using cached data (offline mode)');
+                            return data;
+                        }
+                    } catch (cacheError) {
+                        console.error('Cache error:', cacheError);
+                    }
+                    
+                    // If all fails, try localStorage backup
+                    try {
+                        const backup = localStorage.getItem('cachedCodes');
+                        if (backup) {
+                            const data = JSON.parse(backup);
+                            showInfo('📡 Using local backup');
+                            return data;
+                        }
+                    } catch (e) {}
+                    
                     showError('Unable to fetch codes. Please check your connection.');
                     return [];
                 }
+            }
+
+            // Cache codes in localStorage as backup
+            async function cacheCodesLocally(codes) {
+                try {
+                    localStorage.setItem('cachedCodes', JSON.stringify(codes));
+                } catch (e) {}
             }
 
             async function logCodeUsage(code) {
@@ -468,6 +597,8 @@
                 showLoading();
                 try {
                     const codes = await fetchCodes();
+                    await cacheCodesLocally(codes);
+                    
                     let matchedCode = null;
                     for (let i = 0; i < codes.length; i++) {
                         if (codes[i].code === code) {
@@ -482,7 +613,12 @@
                         return;
                     }
 
-                    await logCodeUsage(code);
+                    // Try to log, but continue even if fails
+                    try {
+                        await logCodeUsage(code);
+                    } catch (e) {
+                        console.log('Logging failed, continuing:', e);
+                    }
 
                     let expires = Date.now() + Number(matchedCode.duration);
                     const currentGate = getGateExpiry();
@@ -553,6 +689,31 @@
                 }
             }
 
+            // ---------- FULLSCREEN FOR WINDOWS ----------
+            function requestFullscreen() {
+                const el = document.documentElement;
+                if (el.requestFullscreen) {
+                    el.requestFullscreen().catch(() => {});
+                } else if (el.webkitRequestFullscreen) {
+                    el.webkitRequestFullscreen();
+                } else if (el.msRequestFullscreen) {
+                    el.msRequestFullscreen();
+                }
+            }
+
+            // Try fullscreen on load and on user interaction
+            document.addEventListener('DOMContentLoaded', function() {
+                // Try fullscreen after a small delay
+                setTimeout(requestFullscreen, 1000);
+            });
+
+            // Fullscreen on any click/tap
+            document.addEventListener('click', function() {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    requestFullscreen();
+                }
+            });
+
             // ---------- INIT ----------
             function init() {
                 // System time check
@@ -597,6 +758,13 @@
                 }
 
                 showRemainingTrial();
+
+                // Pre-fetch and cache codes
+                fetchCodes().then(codes => {
+                    if (codes && codes.length > 0) {
+                        cacheCodesLocally(codes);
+                    }
+                });
             }
 
             // ---------- EVENT BINDINGS ----------
@@ -640,6 +808,84 @@
             // Run init
             init();
         })();
+    </script>
+
+    <!-- Service Worker Code (injected for standalone) -->
+    <script id="swScript">
+        // This will be used to create the service worker
+        const swCode = `
+            const CACHE_NAME = 'prekg-v1';
+            const urlsToCache = [
+                '.',
+                'index.html',
+                'icons/icon-192.png',
+                'icons/icon-512.png'
+            ];
+
+            self.addEventListener('install', function(event) {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(function(cache) {
+                            console.log('Opened cache');
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(function(response) {
+                            // Cache hit - return response
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request).then(
+                                function(response) {
+                                    // Check if we received a valid response
+                                    if(!response || response.status !== 200 || response.type !== 'basic') {
+                                        return response;
+                                    }
+
+                                    // IMPORTANT: Clone the response. A response is a stream
+                                    // and because we want the browser to consume the response
+                                    // as well as the cache consuming the response, we need
+                                    // to clone it so we have two streams.
+                                    var responseToCache = response.clone();
+
+                                    caches.open(CACHE_NAME)
+                                        .then(function(cache) {
+                                            cache.put(event.request, responseToCache);
+                                        });
+
+                                    return response;
+                                }
+                            );
+                        })
+                );
+            });
+        `;
+
+        // Create and register service worker from blob
+        if ('serviceWorker' in navigator) {
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl, { scope: '/' })
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            } catch (e) {
+                console.log('SW registration via blob failed, trying standard registration');
+                // Try standard registration as fallback
+                if (navigator.serviceWorker) {
+                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                }
+            }
+        }
     </script>
 </body>
 </html>
