@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pre KG English</title>
     
-    <!-- iOS & Standalone App Meta Tags -->
+    <!-- Standalone App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pre KG English">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Pre KG English">
+    
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
     
     <style>
         * {
@@ -20,6 +25,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f2f6fc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
         body {
             background: linear-gradient(145deg, #f2f6fc, #e8f0fe);
             min-height: 100vh;
@@ -27,11 +40,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             padding: 16px;
             margin: 0;
-            /* iOS Safe Area */
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
         }
 
         .container {
@@ -41,12 +56,14 @@
             padding: 32px 24px 28px;
             border-radius: 40px;
             box-shadow: 0 20px 60px rgba(0, 20, 50, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05);
-            max-width: 420px;
+            max-width: 460px;
             width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.6);
             position: relative;
             transition: all 0.2s ease;
             text-align: center;
+            max-height: 95vh;
+            overflow-y: auto;
         }
 
         h1 {
@@ -151,49 +168,147 @@
             background: #e6352b;
         }
 
-        #message {
-            margin-top: 18px;
-            font-size: 15px;
-            min-height: 26px;
-            font-weight: 500;
-            padding: 0 6px;
-        }
-        .error { color: #ff3b30; }
-        .success { color: #34c759; }
-        .info { color: #007aff; }
-        .warning { color: #f5a623; }
-
-        .timer {
-            font-size: 14px;
-            color: #5b6f87;
-            margin-top: 10px;
-            font-weight: 500;
-            background: rgba(0, 0, 0, 0.02);
-            padding: 8px 16px;
-            border-radius: 40px;
-            display: inline-block;
-        }
-
-        .trial-used {
-            background: rgba(255, 59, 48, 0.08);
-            padding: 12px 16px;
+        /* Download Progress Section */
+        .download-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0, 122, 255, 0.06);
             border-radius: 20px;
-            margin-top: 16px;
-            border: 1px solid rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(0, 122, 255, 0.1);
+        }
+
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .download-title {
             font-size: 14px;
-            color: #c0392b;
-            font-weight: 500;
+            font-weight: 600;
+            color: #1c2e4a;
         }
 
-        .security-badge {
+        .download-status {
             font-size: 12px;
-            color: #8e9aab;
-            margin-top: 24px;
-            opacity: 0.7;
-            letter-spacing: 0.3px;
+            color: #5b6f87;
         }
 
-        /* Spinner Overlay */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007aff, #34c759);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .download-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #8e9aab;
+            margin-top: 6px;
+        }
+
+        .download-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            width: 100%;
+        }
+        .download-btn:active {
+            transform: scale(0.95);
+        }
+        .download-btn:disabled {
+            background: #b0bac9;
+            cursor: not-allowed;
+        }
+
+        /* File List */
+        .file-list {
+            margin-top: 12px;
+            text-align: left;
+            font-size: 11px;
+            color: #5b6f87;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .file-item .status {
+            font-weight: 600;
+        }
+        .file-item .status.done { color: #34c759; }
+        .file-item .status.pending { color: #f5a623; }
+        .file-item .status.error { color: #ff3b30; }
+
+        .offline-badge {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .offline-badge.show {
+            display: block;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #1c2e4a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 999;
+            transition: background 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.2);
+            line-height: 1;
+        }
+        .close-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(0.92);
+        }
+
         .spinner-overlay {
             display: none;
             position: absolute;
@@ -243,36 +358,55 @@
             100% { content: ''; }
         }
 
-        /* Close button - iOS style */
-        .close-btn {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            width: 44px;
-            height: 44px;
-            background: rgba(0, 0, 0, 0.04);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #1c2e4a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: 300;
-            cursor: pointer;
-            z-index: 999;
-            transition: background 0.2s;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-            border: 1px solid rgba(255,255,255,0.2);
-            line-height: 1;
+        #message {
+            margin-top: 18px;
+            font-size: 15px;
+            min-height: 26px;
+            font-weight: 500;
+            padding: 0 6px;
         }
-        .close-btn:active {
-            background: rgba(0, 0, 0, 0.1);
-            transform: scale(0.92);
+        .error { color: #ff3b30; }
+        .success { color: #34c759; }
+        .info { color: #007aff; }
+        .warning { color: #f5a623; }
+
+        .timer {
+            font-size: 14px;
+            color: #5b6f87;
+            margin-top: 10px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
         }
 
-        /* Responsive */
+        .trial-used {
+            background: rgba(255, 59, 48, 0.08);
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            border: 1px solid rgba(255, 59, 48, 0.15);
+            font-size: 14px;
+            color: #c0392b;
+            font-weight: 500;
+        }
+
+        .security-badge {
+            font-size: 12px;
+            color: #8e9aab;
+            margin-top: 24px;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+        }
+
+        .cache-info {
+            font-size: 11px;
+            color: #8e9aab;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
         @media (max-width: 420px) {
             .container {
                 padding: 24px 18px 22px;
@@ -283,7 +417,6 @@
             button { font-size: 16px; padding: 15px 16px; }
         }
 
-        /* iOS style status bar handling */
         @supports (padding: max(0px)) {
             .container {
                 padding-left: max(24px, env(safe-area-inset-left));
@@ -294,11 +427,10 @@
 </head>
 <body>
 
-    <!-- iOS style close button -->
+    <div class="offline-badge" id="offlineBadge">📡 Offline Mode</div>
     <div class="close-btn" id="closeButton">✕</div>
 
     <div class="container" id="appContainer">
-        <!-- Loading Overlay -->
         <div class="spinner-overlay" id="loadingOverlay">
             <div class="spinner"></div>
             <div class="loading-text">Connecting<span class="loading-dots"></span></div>
@@ -315,6 +447,25 @@
             <button class="buy-button" id="buyBtn">🛒 Buy Code</button>
         </div>
 
+        <!-- Download Section -->
+        <div class="download-section" id="downloadSection">
+            <div class="download-header">
+                <span class="download-title">📥 Course Content</span>
+                <span class="download-status" id="downloadStatus">Not Downloaded</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="download-details">
+                <span id="downloadedSize">0 MB</span>
+                <span id="totalSize">/ 0 MB</span>
+                <span id="downloadSpeed">0 MB/s</span>
+            </div>
+            <button class="download-btn" id="downloadBtn">⬇️ Download Course</button>
+            <div class="file-list" id="fileList"></div>
+            <div class="cache-info" id="cacheInfo">📦 Checking cache...</div>
+        </div>
+
         <p id="message"></p>
         <div id="timerDisplay" class="timer"></div>
         <div id="trialStatus" class="trial-used" style="display:none;"></div>
@@ -322,15 +473,504 @@
     </div>
 
     <script>
+        // ============================================================
+        // iSPRING COURSE OFFLINE DOWNLOAD MANAGER
+        // ============================================================
+        class IspringDownloadManager {
+            constructor() {
+                this.dbName = 'IspringCourseDB';
+                this.dbVersion = 1;
+                this.db = null;
+                
+                // iSpring Course Files - Update these with actual file paths
+                this.courseFiles = [
+                    { id: 'nursery.html', path: 'nursery.html', size: 0 },
+                    { id: 'data/player.js', path: 'data/player.js', size: 0 },
+                    { id: 'data/player.css', path: 'data/player.css', size: 0 },
+                    { id: 'data/skin.js', path: 'data/skin.js', size: 0 },
+                    { id: 'data/skin.css', path: 'data/skin.css', size: 0 },
+                    { id: 'data/assets/audio1.mp3', path: 'data/assets/audio1.mp3', size: 0 },
+                    { id: 'data/assets/audio2.mp3', path: 'data/assets/audio2.mp3', size: 0 },
+                    { id: 'data/assets/video1.mp4', path: 'data/assets/video1.mp4', size: 0 },
+                    { id: 'data/assets/video2.mp4', path: 'data/assets/video2.mp4', size: 0 },
+                    { id: 'data/assets/slide1.jpg', path: 'data/assets/slide1.jpg', size: 0 },
+                    { id: 'data/assets/slide2.jpg', path: 'data/assets/slide2.jpg', size: 0 },
+                    { id: 'data/assets/slide3.jpg', path: 'data/assets/slide3.jpg', size: 0 },
+                    { id: 'data/assets/slide4.jpg', path: 'data/assets/slide4.jpg', size: 0 },
+                    { id: 'data/assets/slide5.jpg', path: 'data/assets/slide5.jpg', size: 0 },
+                    { id: 'data/assets/slide6.jpg', path: 'data/assets/slide6.jpg', size: 0 },
+                    { id: 'data/assets/slide7.jpg', path: 'data/assets/slide7.jpg', size: 0 },
+                    { id: 'data/assets/slide8.jpg', path: 'data/assets/slide8.jpg', size: 0 },
+                    { id: 'data/assets/slide9.jpg', path: 'data/assets/slide9.jpg', size: 0 },
+                    { id: 'data/assets/slide10.jpg', path: 'data/assets/slide10.jpg', size: 0 },
+                    // Add all iSpring generated files here
+                ];
+                
+                this.totalSize = 0;
+                this.downloadedSize = 0;
+                this.isDownloading = false;
+                this.isPaused = false;
+                this.currentFileIndex = 0;
+                this.fileStatus = {};
+                this.startTime = null;
+                
+                this.init();
+            }
+
+            async init() {
+                await this.initIndexedDB();
+                await this.loadProgress();
+                await this.getFileSizes();
+                this.setupEventListeners();
+                this.updateUI();
+                this.checkOfflineStatus();
+            }
+
+            initIndexedDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('files')) {
+                            db.createObjectStore('files', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('metadata')) {
+                            db.createObjectStore('metadata', { keyPath: 'id' });
+                        }
+                    };
+                    
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        resolve();
+                    };
+                    
+                    request.onerror = (event) => {
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            async getFileSizes() {
+                // Try to get file sizes from server
+                for (let i = 0; i < this.courseFiles.length; i++) {
+                    const file = this.courseFiles[i];
+                    try {
+                        const response = await fetch(file.path, { method: 'HEAD' });
+                        const size = response.headers.get('content-length');
+                        if (size) {
+                            file.size = parseInt(size);
+                            this.totalSize += file.size;
+                        }
+                    } catch (e) {
+                        // If can't get size, estimate
+                        file.size = 1024 * 1024; // 1MB default
+                        this.totalSize += file.size;
+                    }
+                }
+                document.getElementById('totalSize').textContent = '/ ' + (this.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+
+            async loadProgress() {
+                try {
+                    const metadata = await this.getMetadata('downloadProgress');
+                    if (metadata) {
+                        this.downloadedSize = metadata.downloadedSize || 0;
+                        this.currentFileIndex = metadata.currentFileIndex || 0;
+                        this.fileStatus = metadata.fileStatus || {};
+                    }
+                    
+                    // Get actual sizes from IndexedDB
+                    const files = await this.getAllFiles();
+                    let total = 0;
+                    for (const file of files) {
+                        total += file.size || 0;
+                        this.fileStatus[file.id] = { status: 'done' };
+                    }
+                    if (total > 0) {
+                        this.downloadedSize = total;
+                    }
+                } catch (e) {
+                    console.log('Load progress error:', e);
+                }
+            }
+
+            async getMetadata(id) {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) {
+                        resolve(null);
+                        return;
+                    }
+                    const transaction = this.db.transaction(['metadata'], 'readonly');
+                    const store = transaction.objectStore('metadata');
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => resolve(null);
+                });
+            }
+
+            async saveMetadata(id, data) {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) {
+                        resolve();
+                        return;
+                    }
+                    const transaction = this.db.transaction(['metadata'], 'readwrite');
+                    const store = transaction.objectStore('metadata');
+                    const request = store.put({ ...data, id });
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getAllFiles() {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) {
+                        resolve([]);
+                        return;
+                    }
+                    const transaction = this.db.transaction(['files'], 'readonly');
+                    const store = transaction.objectStore('files');
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async saveFile(id, data, size) {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) {
+                        reject('Database not initialized');
+                        return;
+                    }
+                    const transaction = this.db.transaction(['files'], 'readwrite');
+                    const store = transaction.objectStore('files');
+                    const request = store.put({ id, data, size, timestamp: Date.now() });
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getFile(id) {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) {
+                        resolve(null);
+                        return;
+                    }
+                    const transaction = this.db.transaction(['files'], 'readonly');
+                    const store = transaction.objectStore('files');
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            setupEventListeners() {
+                window.addEventListener('online', () => {
+                    document.getElementById('offlineBadge').classList.remove('show');
+                    if (this.isPaused && this.downloadedSize < this.totalSize) {
+                        this.resumeDownload();
+                    }
+                });
+                
+                window.addEventListener('offline', () => {
+                    document.getElementById('offlineBadge').classList.add('show');
+                    this.pauseDownload();
+                });
+                
+                document.getElementById('downloadBtn').addEventListener('click', () => {
+                    this.toggleDownload();
+                });
+                
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden && this.isDownloading) {
+                        this.pauseDownload();
+                    }
+                });
+            }
+
+            async toggleDownload() {
+                if (this.isDownloading) {
+                    this.pauseDownload();
+                } else {
+                    const allDownloaded = await this.isAllDownloaded();
+                    if (allDownloaded) {
+                        this.showMessage('✅ Course already downloaded! Ready for offline use.', 'success');
+                        return;
+                    }
+                    this.startDownload();
+                }
+            }
+
+            async isAllDownloaded() {
+                const files = await this.getAllFiles();
+                return files.length >= this.courseFiles.length;
+            }
+
+            async startDownload() {
+                if (this.isDownloading) return;
+                
+                const storageEstimate = await this.getStorageEstimate();
+                if (storageEstimate && storageEstimate.quota - storageEstimate.usage < this.totalSize) {
+                    this.showMessage('⚠️ Not enough storage space. Please free up space.', 'error');
+                    return;
+                }
+                
+                this.isDownloading = true;
+                this.isPaused = false;
+                this.startTime = Date.now();
+                document.getElementById('downloadBtn').textContent = '⏸️ Pause';
+                document.getElementById('downloadStatus').textContent = '⏳ Downloading...';
+                document.getElementById('downloadStatus').style.color = '#007aff';
+                
+                await this.downloadFiles();
+            }
+
+            pauseDownload() {
+                this.isPaused = true;
+                this.isDownloading = false;
+                document.getElementById('downloadBtn').textContent = '▶️ Resume';
+                document.getElementById('downloadStatus').textContent = '⏸️ Paused';
+                document.getElementById('downloadStatus').style.color = '#f5a623';
+                this.saveProgress();
+            }
+
+            async resumeDownload() {
+                const allDownloaded = await this.isAllDownloaded();
+                if (allDownloaded) {
+                    this.showMessage('✅ Download complete!', 'success');
+                    return;
+                }
+                
+                this.isPaused = false;
+                this.isDownloading = true;
+                document.getElementById('downloadBtn').textContent = '⏸️ Pause';
+                document.getElementById('downloadStatus').textContent = '⏳ Downloading...';
+                document.getElementById('downloadStatus').style.color = '#007aff';
+                
+                await this.downloadFiles();
+            }
+
+            async downloadFiles() {
+                for (let i = this.currentFileIndex; i < this.courseFiles.length && !this.isPaused; i++) {
+                    const file = this.courseFiles[i];
+                    
+                    // Skip if already downloaded
+                    const existing = await this.getFile(file.id);
+                    if (existing) {
+                        this.fileStatus[file.id] = { status: 'done' };
+                        this.downloadedSize += existing.size || 0;
+                        this.currentFileIndex = i + 1;
+                        this.updateUI();
+                        this.updateFileList();
+                        continue;
+                    }
+                    
+                    try {
+                        this.fileStatus[file.id] = { status: 'downloading' };
+                        this.updateFileList();
+                        
+                        const response = await fetch(file.path);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch: ' + response.status);
+                        }
+                        
+                        const data = await response.arrayBuffer();
+                        const size = data.byteLength;
+                        
+                        await this.saveFile(file.id, data, size);
+                        
+                        this.downloadedSize += size;
+                        this.fileStatus[file.id] = { status: 'done' };
+                        this.currentFileIndex = i + 1;
+                        
+                        this.updateUI();
+                        this.updateFileList();
+                        
+                        // Save progress every few files
+                        if (i % 3 === 0) {
+                            await this.saveProgress();
+                        }
+                        
+                    } catch (error) {
+                        console.error('Download error for', file.id, error);
+                        this.fileStatus[file.id] = { status: 'error', error: error.message };
+                        this.updateFileList();
+                        this.showMessage('⚠️ Error downloading: ' + file.id, 'error');
+                        
+                        // Retry logic
+                        let retries = 0;
+                        while (retries < 3 && !this.isPaused) {
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            try {
+                                const response = await fetch(file.path);
+                                if (response.ok) {
+                                    const data = await response.arrayBuffer();
+                                    const size = data.byteLength;
+                                    await this.saveFile(file.id, data, size);
+                                    this.downloadedSize += size;
+                                    this.fileStatus[file.id] = { status: 'done' };
+                                    this.currentFileIndex = i + 1;
+                                    this.updateUI();
+                                    this.updateFileList();
+                                    break;
+                                }
+                            } catch (e) {
+                                retries++;
+                            }
+                        }
+                        
+                        if (this.fileStatus[file.id].status !== 'done') {
+                            this.pauseDownload();
+                            return;
+                        }
+                    }
+                }
+                
+                // Check if complete
+                const allDownloaded = await this.isAllDownloaded();
+                if (allDownloaded) {
+                    this.isDownloading = false;
+                    document.getElementById('downloadBtn').textContent = '✅ Complete';
+                    document.getElementById('downloadBtn').disabled = true;
+                    document.getElementById('downloadStatus').textContent = '✅ Ready Offline';
+                    document.getElementById('downloadStatus').style.color = '#34c759';
+                    this.showMessage('🎉 Course downloaded! You can now use offline.', 'success');
+                    await this.saveProgress();
+                    
+                    // Cache for offline use
+                    await this.cacheForOffline();
+                }
+            }
+
+            async cacheForOffline() {
+                try {
+                    const cache = await caches.open('ispring-course-v1');
+                    const files = await this.getAllFiles();
+                    for (const file of files) {
+                        const response = new Response(file.data, {
+                            headers: { 'Content-Type': this.getContentType(file.id) }
+                        });
+                        await cache.put('/' + file.id, response);
+                    }
+                    document.getElementById('cacheInfo').textContent = '✅ All files cached for offline use';
+                } catch (e) {
+                    console.log('Cache error:', e);
+                }
+            }
+
+            getContentType(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                const types = {
+                    'html': 'text/html',
+                    'css': 'text/css',
+                    'js': 'application/javascript',
+                    'json': 'application/json',
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'gif': 'image/gif',
+                    'svg': 'image/svg+xml',
+                    'mp3': 'audio/mpeg',
+                    'mp4': 'video/mp4',
+                    'webm': 'video/webm',
+                    'pdf': 'application/pdf'
+                };
+                return types[ext] || 'application/octet-stream';
+            }
+
+            async saveProgress() {
+                try {
+                    await this.saveMetadata('downloadProgress', {
+                        downloadedSize: this.downloadedSize,
+                        currentFileIndex: this.currentFileIndex,
+                        fileStatus: this.fileStatus,
+                        lastUpdated: Date.now()
+                    });
+                } catch (e) {
+                    console.log('Save progress error:', e);
+                }
+            }
+
+            updateUI() {
+                const progress = this.totalSize > 0 ? Math.min((this.downloadedSize / this.totalSize) * 100, 100) : 0;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('downloadedSize').textContent = 
+                    (this.downloadedSize / (1024 * 1024)).toFixed(1) + ' MB';
+                
+                if (this.startTime && this.downloadedSize > 0) {
+                    const elapsed = (Date.now() - this.startTime) / 1000;
+                    if (elapsed > 0) {
+                        const speed = this.downloadedSize / elapsed / (1024 * 1024);
+                        document.getElementById('downloadSpeed').textContent = speed.toFixed(1) + ' MB/s';
+                    }
+                }
+            }
+
+            updateFileList() {
+                const list = document.getElementById('fileList');
+                let html = '';
+                for (const [id, status] of Object.entries(this.fileStatus)) {
+                    const statusText = status.status === 'done' ? '✅' : 
+                                      status.status === 'downloading' ? '⏳' : 
+                                      status.status === 'error' ? '❌' : '⏸️';
+                    const className = status.status === 'done' ? 'done' : 
+                                     status.status === 'error' ? 'error' : 'pending';
+                    html += `<div class="file-item">
+                        <span>${id}</span>
+                        <span class="status ${className}">${statusText}</span>
+                    </div>`;
+                }
+                list.innerHTML = html || '<div style="text-align:center;color:#8e9aab;">No files</div>';
+            }
+
+            async checkOfflineStatus() {
+                const allDownloaded = await this.isAllDownloaded();
+                if (allDownloaded) {
+                    document.getElementById('downloadStatus').textContent = '✅ Ready Offline';
+                    document.getElementById('downloadStatus').style.color = '#34c759';
+                    document.getElementById('downloadBtn').textContent = '✅ Complete';
+                    document.getElementById('downloadBtn').disabled = true;
+                    document.getElementById('cacheInfo').textContent = '✅ Course ready for offline use';
+                } else {
+                    const files = await this.getAllFiles();
+                    if (files.length > 0) {
+                        document.getElementById('downloadStatus').textContent = '⏳ Partial Download';
+                        document.getElementById('downloadStatus').style.color = '#f5a623';
+                    }
+                }
+                this.updateFileList();
+            }
+
+            async getStorageEstimate() {
+                if ('storage' in navigator && 'estimate' in navigator.storage) {
+                    try {
+                        return await navigator.storage.estimate();
+                    } catch (e) {
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            showMessage(text, type) {
+                const msg = document.getElementById('message');
+                msg.className = type;
+                msg.textContent = text;
+                setTimeout(() => { if (msg.className === type) msg.textContent = ''; }, 8000);
+            }
+        }
+
+        // ============================================================
+        // MAIN APPLICATION
+        // ============================================================
         (function() {
-            // ---------- CONFIG ----------
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbw1BXgX4wy4nPZgSaJWFdBcV88OVliqn1pdQ88Xdwiz1x7MLp0lrYEyskJ1f5bnZdq-/exec';
             const storageKey = 'prekgPhonicsData';
             const trialKey = 'prekgPhonicsTrial';
             const systemKey = 'prekgPhonicsSystem';
             const gateExpiryKey = 'accessGateExpiry';
 
-            // DOM refs
             const secretInput = document.getElementById('secretCode');
             const activateBtn = document.getElementById('activateBtn');
             const trialBtn = document.getElementById('trialBtn');
@@ -341,7 +981,9 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             const closeBtn = document.getElementById('closeButton');
 
-            // ---------- HELPERS ----------
+            // Initialize Download Manager
+            const downloadManager = new IspringDownloadManager();
+
             function showLoading() {
                 loadingOverlay.classList.add('active');
             }
@@ -363,13 +1005,7 @@
                 messageEl.textContent = text;
                 setTimeout(() => { if (messageEl.className === 'info') messageEl.textContent = ''; }, 8000);
             }
-            function showTrialUsed(msg) {
-                trialStatus.style.display = 'block';
-                trialStatus.textContent = msg;
-                trialStatus.style.color = '#c0392b';
-            }
 
-            // ---------- SYSTEM TIME CHECK ----------
             function getSystemTime() {
                 const now = Date.now();
                 let systemData = null;
@@ -380,7 +1016,7 @@
 
                 if (systemData) {
                     if (systemData.lastCheck > now) {
-                        return { valid: false, reason: 'backdate_detected', storedTime: systemData.lastCheck, currentTime: now };
+                        return { valid: false, reason: 'backdate_detected' };
                     }
                     const diff = now - systemData.lastCheck;
                     if (diff > 24 * 60 * 60 * 1000) {
@@ -399,20 +1035,12 @@
                 } catch (_) {}
             }
 
-            // ---------- TRIAL ----------
             function getTrialData() {
                 try {
                     const raw = localStorage.getItem(trialKey);
                     if (raw) return JSON.parse(atob(raw));
                 } catch (_) {}
                 return null;
-            }
-
-            function saveTrialData(expires, startTime) {
-                try {
-                    const data = JSON.stringify({ type: 'trial', expires, started: startTime, used: true, systemTimeAtStart: Date.now() });
-                    localStorage.setItem(trialKey, btoa(data));
-                } catch (_) {}
             }
 
             function isTrialValid(trialData) {
@@ -422,7 +1050,6 @@
                 return trialData.expires > sys.timestamp;
             }
 
-            // ---------- GATE ----------
             function getGateExpiry() {
                 const val = localStorage.getItem(gateExpiryKey);
                 if (val === null) return null;
@@ -432,14 +1059,12 @@
                 localStorage.setItem(gateExpiryKey, ts.toString());
             }
 
-            // ---------- REDIRECT TO FORM (Trial) ----------
             function redirectToForm() {
                 const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSd8GAR5JemcRwfpqgefJa2T7AE2CJ93R2M61Xlp30N_YHiuVQ/viewform';
                 window.open(formUrl, '_blank');
                 showInfo('📋 Please fill out the form to request your free trial code.');
             }
 
-            // ---------- FETCH CODES ----------
             async function fetchCodes() {
                 try {
                     const resp = await fetch(scriptUrl + '?action=fetchCodes&_=' + Date.now());
@@ -457,7 +1082,6 @@
                 } catch (_) {}
             }
 
-            // ---------- HANDLE SUBMIT (Activate) ----------
             async function handleSubmit() {
                 const code = secretInput.value.trim().toUpperCase();
                 if (code.length !== 6) {
@@ -507,7 +1131,6 @@
                 }
             }
 
-            // ---------- BUY LINK ----------
             async function openBuyLink() {
                 showLoading();
                 try {
@@ -526,7 +1149,6 @@
                 }
             }
 
-            // ---------- SHOW REMAINING TRIAL ----------
             function showRemainingTrial() {
                 const trialData = getTrialData();
                 const gateExpiry = getGateExpiry();
@@ -553,12 +1175,10 @@
                 }
             }
 
-            // ---------- INIT ----------
             function init() {
-                // System time check
                 const sys = getSystemTime();
                 if (!sys.valid && sys.reason === 'backdate_detected') {
-                    showError('⚠️ System time tampering detected! Please correct your system time.');
+                    showError('⚠️ System time tampering detected!');
                     trialBtn.disabled = true;
                     trialBtn.textContent = '🚫 Access Denied';
                     trialBtn.style.opacity = '0.4';
@@ -567,26 +1187,24 @@
                     return;
                 }
 
-                // Gate check
                 const gateExpiry = getGateExpiry();
                 if (gateExpiry !== null && gateExpiry > Date.now()) {
-                    window.location.href = 'msandmf1.html';
+                    window.location.href = 'nursery.html';
                     return;
                 }
 
-                // Trial check
                 const trialData = getTrialData();
                 if (trialData) {
                     if (isTrialValid(trialData)) {
-                        window.location.href = 'msandmf1.html';
+                        window.location.href = 'nursery.html';
                         return;
                     } else {
                         localStorage.removeItem(trialKey);
                         const sys2 = getSystemTime();
                         if (!sys2.valid) {
-                            showError('⚠️ System time tampering detected! Trial access revoked.');
+                            showError('⚠️ System time tampering detected!');
                         } else {
-                            showTrialUsed('⏰ Your 3-day free trial has expired. Please buy a code or request a new one.');
+                            showTrialUsed('⏰ Your 3-day free trial has expired.');
                         }
                         trialBtn.disabled = false;
                         trialBtn.textContent = '📝 Get 3 Days Free Trial Code';
@@ -599,7 +1217,12 @@
                 showRemainingTrial();
             }
 
-            // ---------- EVENT BINDINGS ----------
+            function showTrialUsed(msg) {
+                trialStatus.style.display = 'block';
+                trialStatus.textContent = msg;
+                trialStatus.style.color = '#c0392b';
+            }
+
             activateBtn.addEventListener('click', handleSubmit);
             trialBtn.addEventListener('click', redirectToForm);
             buyBtn.addEventListener('click', openBuyLink);
@@ -616,7 +1239,6 @@
                 }
             });
 
-            // Periodic system time check (every 30s)
             setInterval(() => {
                 const sys = getSystemTime();
                 if (!sys.valid && sys.reason === 'backdate_detected') {
@@ -626,20 +1248,68 @@
                     trialBtn.style.opacity = '0.3';
                     activateBtn.disabled = true;
                     secretInput.disabled = true;
-                    const td = getTrialData();
-                    if (td) {
-                        localStorage.removeItem(trialKey);
-                        showTrialUsed('⚠️ Trial access revoked due to system time tampering.');
-                    }
                 }
             }, 30000);
 
-            // Update timer every minute
             setInterval(showRemainingTrial, 60000);
 
-            // Run init
             init();
         })();
+    </script>
+
+    <!-- Service Worker for Offline Support -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'ispring-course-v1';
+                const urlsToCache = [
+                    '.',
+                    'index.html',
+                    'nursery.html',
+                    'icons/icon-192.png'
+                ];
+
+                self.addEventListener('install', function(event) {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(function(cache) {
+                                return cache.addAll(urlsToCache);
+                            })
+                    );
+                });
+
+                self.addEventListener('fetch', function(event) {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(function(response) {
+                                if (response) {
+                                    return response;
+                                }
+                                return fetch(event.request).then(function(response) {
+                                    if (!response || response.status !== 200) {
+                                        return response;
+                                    }
+                                    var responseToCache = response.clone();
+                                    caches.open(CACHE_NAME)
+                                        .then(function(cache) {
+                                            cache.put(event.request, responseToCache);
+                                        });
+                                    return response;
+                                });
+                            })
+                    );
+                });
+            `;
+
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl, { scope: '/' })
+                    .catch(() => {});
+            } catch (e) {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            }
+        }
     </script>
 </body>
 </html>
