@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>သက်တမ်းတိုးရန်</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Arial', system-ui, sans-serif;
+            padding: 20px;
+        }
+        .popup-container {
+            background: linear-gradient(145deg, #1a2a4a, #0d1b3e);
+            border-radius: 32px;
+            padding: 32px 28px 36px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 0, 0.2);
+            color: white;
+            animation: fadeInUp 0.35s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .popup-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 20px 20px 18px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .status-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 8px 0 4px;
+        }
+        .countdown-item {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            padding: 8px 4px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .countdown-number {
+            font-size: 1.9rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+            color: #ffd966;
+        }
+        .countdown-number.expired {
+            color: #ff7a5a;
+        }
+        .countdown-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+        .status-sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .status-badge-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .badge {
+            font-size: 0.7rem;
+            padding: 4px 14px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .badge-valid {
+            border-color: #7ddf9a;
+            color: #7ddf9a;
+        }
+        .badge-warning {
+            border-color: #ffb347;
+            color: #ffb347;
+        }
+        .badge-expired {
+            border-color: #ff7a5a;
+            color: #ff7a5a;
+        }
+        .badge-trial {
+            border-color: #74c0fc;
+            color: #74c0fc;
+        }
+        .input-group {
+            margin: 16px 0 12px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 6px;
+            text-align: center;
+            border: none;
+            border-radius: 60px;
+            background: white;
+            color: #1a2c3e;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+            outline: none;
+        }
+        .input-group input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+            border: 2px solid #ffd966;
+        }
+        .input-group input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-extend {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 60px;
+            background: #ff8c1a;
+            color: white;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 12px rgba(255, 140, 26, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .btn-extend:hover:not(:disabled) {
+            background: #ffa233;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 26, 0.4);
+        }
+        .btn-extend:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        .btn-extend:disabled {
+            background: #6f8f6a;
+            cursor: wait;
+            opacity: 0.7;
+        }
+        #popupMessage {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            min-height: 36px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 40px;
+            padding: 8px 14px;
+            text-align: center;
+        }
+        .popup-error { color: #ffc2a1; }
+        .popup-success { color: #b8f0a8; }
+        .popup-info { color: #aad0ff; }
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 18px 0 10px;
+        }
+        .buy-link-section {
+            text-align: center;
+            margin-top: 8px;
+        }
+        .buy-link-section a {
+            color: #ffb347;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .buy-link-section a:hover {
+            color: #ffcc66;
+            text-decoration: underline;
+        }
+        .spinner-mini {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid #ffc107;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden { display: none !important; }
+        .close-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .close-btn:hover {
+            background: #ff6666;
+            transform: scale(1.05);
+        }
+        .source-badge {
+            font-size: 0.65rem;
+            opacity: 0.4;
+            text-align: center;
+            margin-top: 8px;
+        }
+        @media (max-width: 420px) {
+            .popup-container { padding: 24px 16px 28px; }
+            .countdown-number { font-size: 1.4rem; }
+            .countdown-grid { gap: 4px; }
+            .countdown-item { padding: 6px 2px; }
+            .popup-header h2 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="close-btn" onclick="closePopup()">×</button>
+
+<div class="popup-container" id="popupContainer">
+    <div class="popup-header">
+        <h2>⏳ သက်တမ်းလက်ကျန်</h2>
+    </div>
+
+    <div class="status-card" id="statusCard">
+        <div class="status-label">⏱️ ကျန်ရှိသောအချိန်</div>
+
+        <div class="countdown-grid" id="countdownGrid">
+            <div class="countdown-item">
+                <div class="countdown-number" id="daysDisplay">--</div>
+                <div class="countdown-label">ရက်</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hoursDisplay">--</div>
+                <div class="countdown-label">နာရီ</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutesDisplay">--</div>
+                <div class="countdown-label">မိနစ်</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="secondsDisplay">--</div>
+                <div class="countdown-label">စက္ကန့်</div>
+            </div>
+        </div>
+
+        <div class="status-badge-row">
+            <span class="badge" id="statusBadge">● သက်တမ်းကောင်း</span>
+            <span style="font-size:0.7rem; opacity:0.5;" id="expiryDateText"></span>
+        </div>
+        <div class="status-sub" id="statusSubText"></div>
+    </div>
+
+    <div class="input-group">
+        <label for="extendCode">🔑 သက်တမ်းတိုးကုဒ် (၆ လုံး)</label>
+        <input type="text" id="extendCode" maxlength="6" placeholder="XXXXXX" autofocus>
+    </div>
+
+    <button class="btn-extend" id="extendBtn" onclick="handleExtend()">
+        ⏫ သက်တမ်းတိုးမည်
+    </button>
+
+    <div id="popupMessage"></div>
+
+    <hr class="divider">
+
+    <div class="buy-link-section">
+        <a href="#" id="buyLinkPopup" onclick="openBuyLinkPopup(event)">🛒 ကုဒ်ဝယ်ရန် →</a>
+    </div>
+    <div class="source-badge" id="sourceBadge"></div>
+</div>
+
+<script>
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1BXgX4wy4nPZgSaJWFdBcV88OVliqn1pdQ88Xdwiz1x7MLp0lrYEyskJ1f5bnZdq-/exec';
+    var STORAGE_KEY = 'secureCodeData';
+    var GATE_EXPIRY_KEY = 'accessGateExpiry';
+    var TRIAL_KEY = 'nurseryPhonicsTrial';
+    var ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+    var extendInput = document.getElementById('extendCode');
+    var extendBtn = document.getElementById('extendBtn');
+    var messageDiv = document.getElementById('popupMessage');
+
+    var daysDisplay = document.getElementById('daysDisplay');
+    var hoursDisplay = document.getElementById('hoursDisplay');
+    var minutesDisplay = document.getElementById('minutesDisplay');
+    var secondsDisplay = document.getElementById('secondsDisplay');
+    var statusBadge = document.getElementById('statusBadge');
+    var expiryDateText = document.getElementById('expiryDateText');
+    var statusSubText = document.getElementById('statusSubText');
+    var buyLink = document.getElementById('buyLinkPopup');
+    var sourceBadge = document.getElementById('sourceBadge');
+
+    var isProcessing = false;
+    var countdownInterval = null;
+
+    function formatDate(ms) {
+        var d = new Date(ms);
+        return d.toLocaleDateString('my-MM', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function getGateExpiry() {
+        var val = localStorage.getItem(GATE_EXPIRY_KEY);
+        if (val === null) return null;
+        return parseInt(val, 10);
+    }
+
+    function setGateExpiry(timestamp) {
+        localStorage.setItem(GATE_EXPIRY_KEY, timestamp.toString());
+    }
+
+    function getTrialData() {
+        try {
+            var data = localStorage.getItem(TRIAL_KEY);
+            if (data) {
+                return JSON.parse(atob(data));
+            }
+        } catch (e) { }
+        return null;
+    }
+
+    function getRemainingMs() {
+        var expiry = getGateExpiry();
+        if (expiry === null) {
+            var trialData = getTrialData();
+            if (trialData && trialData.expires) {
+                expiry = trialData.expires;
+            } else {
+                return null;
+            }
+        }
+        return expiry - Date.now();
+    }
+
+    function getAccessSource() {
+        var gate = getGateExpiry();
+        var trial = getTrialData();
+        if (gate !== null && gate > Date.now()) {
+            var secureData = getSecureData();
+            if (secureData && secureData.code) {
+                return '🔑 ဝယ်ယူထားသောကုဒ်';
+            }
+            return '🎁 အခမဲ့အစမ်းသုံး';
+        }
+        if (trial && trial.expires > Date.now()) {
+            return '🎁 အခမဲ့အစမ်းသုံး';
+        }
+        return '⛔ သက်တမ်းမရှိ';
+    }
+
+    function getSecureData() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) return JSON.parse(atob(raw));
+        } catch (e) { }
+        return null;
+    }
+
+    function saveSecureData(codeData) {
+        var expires = Date.now() + Number(codeData.duration);
+        var data = JSON.stringify({ code: codeData.code, expires: expires, url: codeData.url });
+        localStorage.setItem(STORAGE_KEY, btoa(data));
+    }
+
+    function updateCountdown() {
+        var remaining = getRemainingMs();
+
+        if (remaining === null) {
+            daysDisplay.textContent = '--';
+            hoursDisplay.textContent = '--';
+            minutesDisplay.textContent = '--';
+            secondsDisplay.textContent = '--';
+            statusBadge.textContent = '● သတ်မှတ်မထားရသေး';
+            statusBadge.className = 'badge';
+            expiryDateText.textContent = '';
+            statusSubText.textContent = '';
+            sourceBadge.textContent = '';
+            return;
+        }
+
+        if (remaining <= 0) {
+            daysDisplay.textContent = '00';
+            hoursDisplay.textContent = '00';
+            minutesDisplay.textContent = '00';
+            secondsDisplay.textContent = '00';
+            daysDisplay.className = 'countdown-number expired';
+            hoursDisplay.className = 'countdown-number expired';
+            minutesDisplay.className = 'countdown-number expired';
+            secondsDisplay.className = 'countdown-number expired';
+
+            statusBadge.textContent = '⛔ သက်တမ်းကုန်ဆုံး';
+            statusBadge.className = 'badge badge-expired';
+            expiryDateText.textContent = '📅 ' + formatDate(Date.now() + 1000);
+            statusSubText.textContent = '⚠️ ကျေးဇူးပြု၍ ကုဒ်ဖြင့် သက်တမ်းတိုးပါ။';
+            sourceBadge.textContent = '⛔ သက်တမ်းမရှိ';
+            return;
+        }
+
+        var days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+        daysDisplay.textContent = String(days).padStart(2, '0');
+        hoursDisplay.textContent = String(hours).padStart(2, '0');
+        minutesDisplay.textContent = String(minutes).padStart(2, '0');
+        secondsDisplay.textContent = String(seconds).padStart(2, '0');
+
+        daysDisplay.className = 'countdown-number';
+        hoursDisplay.className = 'countdown-number';
+        minutesDisplay.className = 'countdown-number';
+        secondsDisplay.className = 'countdown-number';
+
+        var expiry = getGateExpiry();
+        if (expiry === null) {
+            var trialData = getTrialData();
+            if (trialData) expiry = trialData.expires;
+        }
+
+        if (days <= 3) {
+            statusBadge.textContent = '⚠️ မကြာမီကုန်တော့မည်';
+            statusBadge.className = 'badge badge-warning';
+        } else {
+            statusBadge.textContent = '✅ သက်တမ်းကောင်း';
+            statusBadge.className = 'badge badge-valid';
+        }
+
+        if (expiry) {
+            expiryDateText.textContent = '📅 ' + formatDate(expiry);
+        }
+        statusSubText.textContent = '';
+
+        var source = getAccessSource();
+        sourceBadge.textContent = source;
+    }
+
+    function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    function stopCountdown() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }
+
+    function showPopupMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = '';
+        if (type === 'error') messageDiv.classList.add('popup-error');
+        else if (type === 'success') messageDiv.classList.add('popup-success');
+        else messageDiv.classList.add('popup-info');
+        clearTimeout(messageDiv._timeout);
+        messageDiv._timeout = setTimeout(function() {
+            if (messageDiv.textContent === text) {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }
+        }, 8000);
+    }
+
+    function clearMessage() {
+        clearTimeout(messageDiv._timeout);
+        messageDiv.textContent = '';
+        messageDiv.className = '';
+    }
+
+    async function fetchCodes() {
+        try {
+            var response = await fetch(SCRIPT_URL + '?action=fetchCodes&_=' + Date.now());
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            var data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Fetch codes error:', error);
+            return [];
+        }
+    }
+
+    async function logCodeUsage(code) {
+        try {
+            await fetch(SCRIPT_URL + '?action=logCode&code=' + code + '&deviceInfo=' + encodeURIComponent(navigator.userAgent));
+        } catch (e) { console.warn('Logging failed', e); }
+    }
+
+    async function handleExtend() {
+        if (isProcessing) return;
+        clearMessage();
+
+        var code = extendInput.value.trim().toUpperCase();
+        if (code.length !== 6) {
+            showPopupMessage('❌ ကုဒ်သည် ၆ လုံးအတိအကျ ဖြစ်ရပါမည်။', 'error');
+            extendInput.focus();
+            return;
+        }
+
+        isProcessing = true;
+        extendBtn.disabled = true;
+        extendBtn.innerHTML = '<span class="spinner-mini"></span> စစ်ဆေးနေသည်...';
+        extendInput.disabled = true;
+
+        try {
+            var codes = await fetchCodes();
+            if (!codes || codes.length === 0) {
+                showPopupMessage('⚠️ Server သို့ ဆက်သွယ်၍မရပါ။ နောက်မှကြိုးစားပါ။', 'error');
+                return;
+            }
+
+            var matched = null;
+            for (var i = 0; i < codes.length; i++) {
+                if (codes[i].code === code) {
+                    matched = codes[i];
+                    break;
+                }
+            }
+
+            if (!matched) {
+                showPopupMessage('❌ ကုဒ်မှားနေသည် (သို့) သက်တမ်းကုန်သွားပြီ။ မှန်ကန်သောကုဒ်ထည့်ပါ။', 'error');
+                extendInput.value = '';
+                extendInput.focus();
+                return;
+            }
+
+            await logCodeUsage(code);
+            saveSecureData(matched);
+
+            var currentGateExpiry = getGateExpiry();
+            var now = Date.now();
+            var newExpiry;
+
+            if (currentGateExpiry === null || currentGateExpiry <= now) {
+                newExpiry = now + Number(matched.duration);
+            } else {
+                newExpiry = currentGateExpiry + Number(matched.duration);
+            }
+
+            setGateExpiry(newExpiry);
+            localStorage.removeItem(TRIAL_KEY);
+
+            var addedDays = Math.round(Number(matched.duration) / (1000 * 60 * 60 * 24));
+            showPopupMessage('✅ သက်တမ်းတိုးအောင်မြင်ပါသည်! +' + addedDays + ' ရက် တိုးသည်။', 'success');
+            extendInput.value = '';
+
+        } catch (err) {
+            console.error('Extend error:', err);
+            showPopupMessage('⚠️ Network error. ကျေးဇူးပြု၍ နောက်မှကြိုးစားပါ။', 'error');
+        } finally {
+            isProcessing = false;
+            extendBtn.disabled = false;
+            extendBtn.innerHTML = '⏫ သက်တမ်းတိုးမည်';
+            extendInput.disabled = false;
+            extendInput.focus();
+        }
+    }
+
+    async function openBuyLinkPopup(e) {
+        e.preventDefault();
+        buyLink.textContent = '⏳ ရယူနေသည်...';
+        buyLink.style.pointerEvents = 'none';
+        try {
+            var response = await fetch(SCRIPT_URL + '?action=getBuyLink&_=' + Date.now());
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            var data = await response.json();
+            if (data.buyLink) {
+                window.open(data.buyLink, '_blank');
+                showPopupMessage('🔗 ဝယ်ယူရန်စာမျက်နှာ ဖွင့်ပြီး', 'success');
+            } else {
+                showPopupMessage(data.error || 'ဝယ်ယူရန်လင့်ခ် မတွေ့ပါ။', 'error');
+            }
+        } catch (error) {
+            console.error('Buy link error:', error);
+            showPopupMessage('⚠️ ဝယ်ယူရန်လင့်ခ် ရယူ၍မရပါ။ နောက်မှကြိုးစားပါ။', 'error');
+        } finally {
+            buyLink.textContent = '🛒 ကုဒ်ဝယ်ရန် →';
+            buyLink.style.pointerEvents = 'auto';
+        }
+    }
+
+    function closePopup() {
+        if (window.opener && !window.opener.closed) {
+            window.close();
+        } else {
+            window.history.length > 1 ? window.history.back() : window.close();
+        }
+    }
+
+    extendInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !extendBtn.disabled && !isProcessing) {
+            e.preventDefault();
+            handleExtend();
+        }
+    });
+
+    function init() {
+        startCountdown();
+        extendInput.focus();
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === GATE_EXPIRY_KEY || e.key === STORAGE_KEY || e.key === TRIAL_KEY) {
+                updateCountdown();
+            }
+        });
+    }
+
+    window.addEventListener('beforeunload', stopCountdown);
+
+    init();
+</script>
+
+</body>
+</html>

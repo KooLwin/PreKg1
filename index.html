@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pre KG English</title>
+    
+    <!-- iOS & Standalone App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pre KG English">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f2f6fc, #e8f0fe);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 16px;
+            margin: 0;
+            /* iOS Safe Area */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 32px 24px 28px;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05);
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1c2e4a;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #5b6f87;
+            font-weight: 400;
+            margin-bottom: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        input[type="text"] {
+            padding: 16px 20px;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 6px;
+            border: none;
+            border-radius: 16px;
+            background: rgba(245, 249, 255, 0.9);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            margin: 8px 0 4px;
+            width: 100%;
+            text-align: center;
+            color: #1a2b3e;
+            transition: box-shadow 0.2s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02), 0 0 0 2px #007aff;
+            background: #ffffff;
+        }
+        input[type="text"]:disabled {
+            background: #e9ecf0;
+            color: #8e9aab;
+            opacity: 0.8;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 18px;
+            background: #007aff;
+            color: white;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            width: 100%;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        button:active:not(:disabled) {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+        button:disabled {
+            background: #b0bac9;
+            box-shadow: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .activate-button {
+            background: linear-gradient(135deg, #f5a623, #f7b731);
+            box-shadow: 0 4px 16px rgba(245, 166, 35, 0.25);
+            color: #1c2e4a;
+        }
+        .activate-button:active:not(:disabled) {
+            background: #e09c1e;
+        }
+
+        .free-button {
+            background: #34c759;
+            box-shadow: 0 4px 14px rgba(52, 199, 89, 0.25);
+        }
+        .free-button:active:not(:disabled) {
+            background: #2db84e;
+        }
+
+        .buy-button {
+            background: #ff3b30;
+            box-shadow: 0 4px 14px rgba(255, 59, 48, 0.25);
+        }
+        .buy-button:active:not(:disabled) {
+            background: #e6352b;
+        }
+
+        #message {
+            margin-top: 18px;
+            font-size: 15px;
+            min-height: 26px;
+            font-weight: 500;
+            padding: 0 6px;
+        }
+        .error { color: #ff3b30; }
+        .success { color: #34c759; }
+        .info { color: #007aff; }
+        .warning { color: #f5a623; }
+
+        .timer {
+            font-size: 14px;
+            color: #5b6f87;
+            margin-top: 10px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .trial-used {
+            background: rgba(255, 59, 48, 0.08);
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            border: 1px solid rgba(255, 59, 48, 0.15);
+            font-size: 14px;
+            color: #c0392b;
+            font-weight: 500;
+        }
+
+        .security-badge {
+            font-size: 12px;
+            color: #8e9aab;
+            margin-top: 24px;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+        }
+
+        /* Spinner Overlay */
+        .spinner-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 20;
+        }
+        .spinner-overlay.active {
+            display: flex;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(0, 122, 255, 0.15);
+            border-top: 4px solid #007aff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            margin-top: 14px;
+            font-size: 15px;
+            color: #1c2e4a;
+            font-weight: 500;
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.4s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        /* Close button - iOS style */
+        .close-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #1c2e4a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 999;
+            transition: background 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.2);
+            line-height: 1;
+        }
+        .close-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(0.92);
+        }
+
+        /* Responsive */
+        @media (max-width: 420px) {
+            .container {
+                padding: 24px 18px 22px;
+                border-radius: 32px;
+            }
+            h1 { font-size: 28px; }
+            input[type="text"] { font-size: 20px; padding: 14px 16px; }
+            button { font-size: 16px; padding: 15px 16px; }
+        }
+
+        /* iOS style status bar handling */
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(24px, env(safe-area-inset-left));
+                padding-right: max(24px, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- iOS style close button -->
+    <div class="close-btn" id="closeButton">✕</div>
+
+    <div class="container" id="appContainer">
+        <!-- Loading Overlay -->
+        <div class="spinner-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Connecting<span class="loading-dots"></span></div>
+        </div>
+
+        <h1>Pre-KG English</h1>
+        <div class="subtitle">Fun Learning for Kids!</div>
+
+        <input type="text" id="secretCode" maxlength="6" placeholder="Enter 6-digit code" autofocus inputmode="numeric">
+
+        <div class="btn-group">
+            <button class="activate-button" id="activateBtn">🔑 Activate</button>
+            <button class="free-button" id="trialBtn">📝 Get 3 Days Free Trial Code</button>
+            <button class="buy-button" id="buyBtn">🛒 Buy Code</button>
+        </div>
+
+        <p id="message"></p>
+        <div id="timerDisplay" class="timer"></div>
+        <div id="trialStatus" class="trial-used" style="display:none;"></div>
+        <div class="security-badge">🔒 Secure System</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- CONFIG ----------
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbw1BXgX4wy4nPZgSaJWFdBcV88OVliqn1pdQ88Xdwiz1x7MLp0lrYEyskJ1f5bnZdq-/exec';
+            const storageKey = 'prekgPhonicsData';
+            const trialKey = 'prekgPhonicsTrial';
+            const systemKey = 'prekgPhonicsSystem';
+            const gateExpiryKey = 'accessGateExpiry';
+
+            // DOM refs
+            const secretInput = document.getElementById('secretCode');
+            const activateBtn = document.getElementById('activateBtn');
+            const trialBtn = document.getElementById('trialBtn');
+            const buyBtn = document.getElementById('buyBtn');
+            const messageEl = document.getElementById('message');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const trialStatus = document.getElementById('trialStatus');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const closeBtn = document.getElementById('closeButton');
+
+            // ---------- HELPERS ----------
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+            }
+            function hideLoading() {
+                loadingOverlay.classList.remove('active');
+            }
+
+            function showError(text) {
+                messageEl.className = 'error';
+                messageEl.textContent = text;
+                setTimeout(() => { if (messageEl.className === 'error') messageEl.textContent = ''; }, 10000);
+            }
+            function showSuccess(text) {
+                messageEl.className = 'success';
+                messageEl.textContent = text;
+            }
+            function showInfo(text) {
+                messageEl.className = 'info';
+                messageEl.textContent = text;
+                setTimeout(() => { if (messageEl.className === 'info') messageEl.textContent = ''; }, 8000);
+            }
+            function showTrialUsed(msg) {
+                trialStatus.style.display = 'block';
+                trialStatus.textContent = msg;
+                trialStatus.style.color = '#c0392b';
+            }
+
+            // ---------- SYSTEM TIME CHECK ----------
+            function getSystemTime() {
+                const now = Date.now();
+                let systemData = null;
+                try {
+                    const raw = localStorage.getItem(systemKey);
+                    if (raw) systemData = JSON.parse(atob(raw));
+                } catch (_) {}
+
+                if (systemData) {
+                    if (systemData.lastCheck > now) {
+                        return { valid: false, reason: 'backdate_detected', storedTime: systemData.lastCheck, currentTime: now };
+                    }
+                    const diff = now - systemData.lastCheck;
+                    if (diff > 24 * 60 * 60 * 1000) {
+                        saveSystemData(now);
+                    }
+                } else {
+                    saveSystemData(now);
+                }
+                return { valid: true, timestamp: now };
+            }
+
+            function saveSystemData(ts) {
+                try {
+                    const data = JSON.stringify({ lastCheck: ts, installDate: ts });
+                    localStorage.setItem(systemKey, btoa(data));
+                } catch (_) {}
+            }
+
+            // ---------- TRIAL ----------
+            function getTrialData() {
+                try {
+                    const raw = localStorage.getItem(trialKey);
+                    if (raw) return JSON.parse(atob(raw));
+                } catch (_) {}
+                return null;
+            }
+
+            function saveTrialData(expires, startTime) {
+                try {
+                    const data = JSON.stringify({ type: 'trial', expires, started: startTime, used: true, systemTimeAtStart: Date.now() });
+                    localStorage.setItem(trialKey, btoa(data));
+                } catch (_) {}
+            }
+
+            function isTrialValid(trialData) {
+                if (!trialData) return false;
+                const sys = getSystemTime();
+                if (!sys.valid) return false;
+                return trialData.expires > sys.timestamp;
+            }
+
+            // ---------- GATE ----------
+            function getGateExpiry() {
+                const val = localStorage.getItem(gateExpiryKey);
+                if (val === null) return null;
+                return parseInt(val, 10);
+            }
+            function setGateExpiry(ts) {
+                localStorage.setItem(gateExpiryKey, ts.toString());
+            }
+
+            // ---------- REDIRECT TO FORM (Trial) ----------
+            function redirectToForm() {
+                const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSd8GAR5JemcRwfpqgefJa2T7AE2CJ93R2M61Xlp30N_YHiuVQ/viewform';
+                window.open(formUrl, '_blank');
+                showInfo('📋 Please fill out the form to request your free trial code.');
+            }
+
+            // ---------- FETCH CODES ----------
+            async function fetchCodes() {
+                try {
+                    const resp = await fetch(scriptUrl + '?action=fetchCodes&_=' + Date.now());
+                    return await resp.json();
+                } catch (e) {
+                    console.error('fetchCodes error:', e);
+                    showError('Unable to fetch codes. Please check your connection.');
+                    return [];
+                }
+            }
+
+            async function logCodeUsage(code) {
+                try {
+                    await fetch(scriptUrl + '?action=logCode&code=' + code + '&deviceInfo=' + encodeURIComponent(navigator.userAgent));
+                } catch (_) {}
+            }
+
+            // ---------- HANDLE SUBMIT (Activate) ----------
+            async function handleSubmit() {
+                const code = secretInput.value.trim().toUpperCase();
+                if (code.length !== 6) {
+                    showError('Code must be exactly 6 characters!');
+                    return;
+                }
+
+                showLoading();
+                try {
+                    const codes = await fetchCodes();
+                    let matchedCode = null;
+                    for (let i = 0; i < codes.length; i++) {
+                        if (codes[i].code === code) {
+                            matchedCode = codes[i];
+                            break;
+                        }
+                    }
+
+                    if (!matchedCode) {
+                        hideLoading();
+                        showError('❌ Invalid or expired code. Please try again.');
+                        return;
+                    }
+
+                    await logCodeUsage(code);
+
+                    let expires = Date.now() + Number(matchedCode.duration);
+                    const currentGate = getGateExpiry();
+                    if (currentGate !== null && currentGate > Date.now()) {
+                        expires = currentGate + Number(matchedCode.duration);
+                    }
+                    setGateExpiry(expires);
+
+                    const data = JSON.stringify({ code: matchedCode.code, expires, url: matchedCode.url });
+                    localStorage.setItem(storageKey, btoa(data));
+
+                    hideLoading();
+                    showSuccess('✅ Access granted! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = matchedCode.url;
+                    }, 1000);
+
+                } catch (err) {
+                    hideLoading();
+                    showError('⚠️ Network error. Please try again.');
+                    console.error('Submit error:', err);
+                }
+            }
+
+            // ---------- BUY LINK ----------
+            async function openBuyLink() {
+                showLoading();
+                try {
+                    const resp = await fetch(scriptUrl + '?action=getBuyLink&_=' + Date.now());
+                    const data = await resp.json();
+                    hideLoading();
+                    if (data.buyLink) {
+                        window.open(data.buyLink, '_blank');
+                    } else {
+                        showError(data.error || 'Buy link not found.');
+                    }
+                } catch (err) {
+                    hideLoading();
+                    console.error('Buy link error:', err);
+                    showError('Unable to fetch buy link.');
+                }
+            }
+
+            // ---------- SHOW REMAINING TRIAL ----------
+            function showRemainingTrial() {
+                const trialData = getTrialData();
+                const gateExpiry = getGateExpiry();
+
+                if (gateExpiry !== null && gateExpiry > Date.now()) {
+                    const remainingMs = gateExpiry - Date.now();
+                    const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                    const days = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+                    let txt = '';
+                    if (days > 0) txt = '📅 ' + days + ' day(s) remaining';
+                    else if (hours > 0) txt = '⏰ ' + hours + ' hour(s) remaining';
+                    else {
+                        const mins = Math.floor(remainingMs / (1000 * 60));
+                        txt = mins > 0 ? '⏳ ' + mins + ' minute(s) remaining' : '⏳ Less than a minute remaining';
+                    }
+                    timerDisplay.textContent = txt;
+                    timerDisplay.style.color = '#1c2e4a';
+                } else if (trialData && trialData.expires <= Date.now()) {
+                    timerDisplay.textContent = '⏰ Your free trial has expired';
+                    timerDisplay.style.color = '#ff3b30';
+                } else {
+                    timerDisplay.textContent = '📝 Request your free trial code via the form!';
+                    timerDisplay.style.color = '#5b6f87';
+                }
+            }
+
+            // ---------- INIT ----------
+            function init() {
+                // System time check
+                const sys = getSystemTime();
+                if (!sys.valid && sys.reason === 'backdate_detected') {
+                    showError('⚠️ System time tampering detected! Please correct your system time.');
+                    trialBtn.disabled = true;
+                    trialBtn.textContent = '🚫 Access Denied';
+                    trialBtn.style.opacity = '0.4';
+                    secretInput.disabled = true;
+                    activateBtn.disabled = true;
+                    return;
+                }
+
+                // Gate check
+                const gateExpiry = getGateExpiry();
+                if (gateExpiry !== null && gateExpiry > Date.now()) {
+                    window.location.href = 'msandmf1.html';
+                    return;
+                }
+
+                // Trial check
+                const trialData = getTrialData();
+                if (trialData) {
+                    if (isTrialValid(trialData)) {
+                        window.location.href = 'msandmf1.html';
+                        return;
+                    } else {
+                        localStorage.removeItem(trialKey);
+                        const sys2 = getSystemTime();
+                        if (!sys2.valid) {
+                            showError('⚠️ System time tampering detected! Trial access revoked.');
+                        } else {
+                            showTrialUsed('⏰ Your 3-day free trial has expired. Please buy a code or request a new one.');
+                        }
+                        trialBtn.disabled = false;
+                        trialBtn.textContent = '📝 Get 3 Days Free Trial Code';
+                    }
+                } else {
+                    trialBtn.disabled = false;
+                    trialBtn.textContent = '📝 Get 3 Days Free Trial Code';
+                }
+
+                showRemainingTrial();
+            }
+
+            // ---------- EVENT BINDINGS ----------
+            activateBtn.addEventListener('click', handleSubmit);
+            trialBtn.addEventListener('click', redirectToForm);
+            buyBtn.addEventListener('click', openBuyLink);
+
+            secretInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSubmit();
+            });
+
+            closeBtn.addEventListener('click', () => {
+                if (window.opener && !window.opener.closed) {
+                    window.close();
+                } else {
+                    window.history.length > 1 ? window.history.back() : window.close();
+                }
+            });
+
+            // Periodic system time check (every 30s)
+            setInterval(() => {
+                const sys = getSystemTime();
+                if (!sys.valid && sys.reason === 'backdate_detected') {
+                    showError('⚠️ System time tampering detected!');
+                    trialBtn.disabled = true;
+                    trialBtn.textContent = '🚫 Access Denied';
+                    trialBtn.style.opacity = '0.3';
+                    activateBtn.disabled = true;
+                    secretInput.disabled = true;
+                    const td = getTrialData();
+                    if (td) {
+                        localStorage.removeItem(trialKey);
+                        showTrialUsed('⚠️ Trial access revoked due to system time tampering.');
+                    }
+                }
+            }, 30000);
+
+            // Update timer every minute
+            setInterval(showRemainingTrial, 60000);
+
+            // Run init
+            init();
+        })();
+    </script>
+</body>
+</html>
