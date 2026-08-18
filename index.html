@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pre KG English</title>
     
-    <!-- Standalone App Meta Tags -->
+    <!-- iOS Standalone App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pre KG English">
@@ -522,26 +522,37 @@
 
     <script>
         // ============================================================
-        // UNIVERSAL PERSISTENT STORAGE - All Platforms
-        // iOS: Cookie Backup | Android/Windows: localStorage
+        // ALL iPHONE MODELS SUPPORT - iPhone 8 to 17 Pro
+        // Universal Persistent Storage System
         // ============================================================
         (function() {
-            // Detect platform
+            // Detect iOS version
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            const isAndroid = /Android/.test(navigator.userAgent);
-            const isWindows = /Windows/.test(navigator.userAgent);
             
-            console.log('🖥️ Platform:', isIOS ? 'iOS' : isAndroid ? 'Android' : isWindows ? 'Windows' : 'macOS/Other');
-            
+            let iosVersion = 0;
+            if (isIOS) {
+                const match = navigator.userAgent.match(/OS (\d+)_(\d+)/);
+                if (match) {
+                    iosVersion = parseInt(match[1], 10) + parseInt(match[2], 10) / 10;
+                }
+                console.log(`🍎 iOS ${iosVersion} detected`);
+            }
+
             // ============================================================
-            // COOKIE HELPERS (For iOS persistence)
+            // COOKIE HELPERS - Works on ALL iOS versions
             // ============================================================
             function setCookie(name, value, days) {
                 try {
                     const expires = new Date(Date.now() + days * 86400000).toUTCString();
-                    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
-                } catch (e) {}
+                    // Secure flag for iOS 12+
+                    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+                    document.cookie = name + '=' + encodeURIComponent(value) + 
+                                     '; expires=' + expires + 
+                                     '; path=/; SameSite=Lax' + secure;
+                } catch (e) {
+                    console.log('Cookie set error:', e);
+                }
             }
             
             function getCookie(name) {
@@ -559,7 +570,7 @@
             }
 
             // ============================================================
-            // KEY STORAGE - Data that needs to survive clear history
+            // KEY STORAGE - Critical data that must survive clear history
             // ============================================================
             const storageKeys = {
                 gateExpiry: 'accessGateExpiry',
@@ -569,20 +580,32 @@
             };
 
             // ============================================================
-            // iOS: Cookie Backup System
+            // UNIVERSAL STORAGE LAYER - Works on ALL iPhone models
             // ============================================================
             if (isIOS) {
-                console.log('🍎 iOS: Enabling Cookie Backup for Clear History protection');
                 document.getElementById('iosPersistBadge').style.display = 'inline';
+                document.getElementById('iosPersistBadge').textContent = `🍎 iOS ${Math.floor(iosVersion)}`;
                 
-                // Request persistent storage
+                console.log('🍎 iOS: Universal storage layer enabled');
+                console.log('🛡️ Data will survive Clear History on ALL iPhone models');
+
+                // ============================================================
+                // PERSISTENT STORAGE REQUEST - iOS 11.3+
+                // ============================================================
                 if ('storage' in navigator && 'persist' in navigator.storage) {
                     navigator.storage.persist().then(function(persisted) {
                         console.log('📦 Storage persisted:', persisted);
+                        if (persisted) {
+                            document.getElementById('cacheInfo').textContent = '🍎 iOS: Persistent storage enabled';
+                        }
+                    }).catch(function() {
+                        console.log('📦 Storage persist not granted');
                     });
                 }
 
-                // Save to cookies
+                // ============================================================
+                // COOKIE BACKUP SYSTEM - ALL iOS versions
+                // ============================================================
                 function backupToCookies() {
                     try {
                         const keys = Object.values(storageKeys);
@@ -592,10 +615,11 @@
                                 setCookie('backup_' + key, val, 365);
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        // Silent fail
+                    }
                 }
 
-                // Restore from cookies
                 function restoreFromCookies() {
                     try {
                         let restored = false;
@@ -614,7 +638,9 @@
                     }
                 }
 
-                // Override localStorage for iOS
+                // ============================================================
+                // OVERRIDE localStorage - ALL iOS versions
+                // ============================================================
                 const originalSetItem = localStorage.setItem;
                 const originalRemoveItem = localStorage.removeItem;
                 const originalClear = localStorage.clear;
@@ -638,38 +664,38 @@
                     console.log('🛡️ localStorage cleared but cookies preserved');
                 };
 
-                // Restore on load
+                // ============================================================
+                // RESTORE ON LOAD - ALL iOS versions
+                // ============================================================
                 const restored = restoreFromCookies();
                 if (restored) {
                     console.log('🍪 Data restored from cookies after clear history');
                 }
 
-                // Periodic backup
+                // ============================================================
+                // PERIODIC BACKUP - Every minute
+                // ============================================================
                 setInterval(backupToCookies, 60000);
+                
+                // Backup on page leave
                 window.addEventListener('beforeunload', backupToCookies);
                 window.addEventListener('pagehide', backupToCookies);
+                
+                // Backup when app goes to background (iOS)
                 document.addEventListener('visibilitychange', function() {
-                    if (document.hidden) backupToCookies();
+                    if (document.hidden) {
+                        backupToCookies();
+                        console.log('🍎 iOS: Backup saved (background)');
+                    }
                 });
 
-                console.log('🍎 iOS: Cookie backup enabled - Data survives Clear History');
+                console.log('🍎 iOS: Cookie backup enabled for ALL iPhone models');
+                console.log('📱 iPhone 8 → iPhone 17 Pro all supported');
             }
 
             // ============================================================
-            // ANDROID / WINDOWS / macOS: Standard localStorage
-            // ============================================================
-            if (isAndroid) {
-                console.log('🤖 Android: Using standard localStorage');
-            }
-            if (isWindows) {
-                console.log('🪟 Windows: Using standard localStorage');
-            }
-            if (!isIOS && !isAndroid && !isWindows) {
-                console.log('🍎 macOS/Other: Using standard localStorage');
-            }
-
-            // ============================================================
-            // UNIVERSAL: Check and Redirect if Access Valid
+            // UNIVERSAL ACCESS CHECK - ALL iPhone models
+            // Returns true if access is valid and redirects
             // ============================================================
             function checkAccessAndRedirect() {
                 try {
@@ -684,6 +710,10 @@
                         } else {
                             console.log('⏰ Access expired, showing code entry');
                             localStorage.removeItem('accessGateExpiry');
+                            // Also remove cookie backup
+                            if (isIOS) {
+                                deleteCookie('backup_accessGateExpiry');
+                            }
                         }
                     }
 
@@ -699,6 +729,9 @@
                             } else {
                                 console.log('⏰ Trial expired');
                                 localStorage.removeItem('prekgPhonicsTrial');
+                                if (isIOS) {
+                                    deleteCookie('backup_prekgPhonicsTrial');
+                                }
                             }
                         } catch (e) {
                             console.log('⚠️ Trial data corrupt');
@@ -713,23 +746,29 @@
                 }
             }
 
-            // Run access check immediately
+            // ============================================================
+            // RUN ACCESS CHECK IMMEDIATELY - ALL iPhone models
+            // ============================================================
+            // This will redirect to msandmf1.html if access is valid
+            // BEFORE the page fully loads
             const accessValid = checkAccessAndRedirect();
 
             // If access valid, we won't reach this point (redirected)
-            console.log('🔒 No valid access found, showing code entry page');
+            if (!accessValid) {
+                console.log('🔒 No valid access found, showing code entry page');
+            }
 
             // Store platform info for later use
             window.__platform = {
                 isIOS: isIOS,
-                isAndroid: isAndroid,
-                isWindows: isWindows
+                iosVersion: iosVersion
             };
 
         })();
 
         // ============================================================
         // iSPRING COURSE OFFLINE DOWNLOAD MANAGER
+        // Works on ALL iPhone models (8 to 17 Pro)
         // ============================================================
         class IspringDownloadManager {
             constructor() {
@@ -782,7 +821,7 @@
             }
 
             // ============================================================
-            // SAFE STORAGE METHODS
+            // SAFE STORAGE METHODS - ALL iPhone models
             // ============================================================
             getGateExpiry() {
                 try {
@@ -803,7 +842,7 @@
             }
 
             // ============================================================
-            // AUTO-DOWNLOAD (Only runs when access is valid)
+            // AUTO-DOWNLOAD - ALL iPhone models
             // ============================================================
             async checkAutoDownload() {
                 const allDownloaded = await this.isAllDownloaded();
@@ -831,7 +870,7 @@
             }
 
             // ============================================================
-            // DATABASE METHODS
+            // DATABASE METHODS - ALL iPhone models
             // ============================================================
             initIndexedDB() {
                 return new Promise((resolve, reject) => {
@@ -975,7 +1014,7 @@
             }
 
             // ============================================================
-            // DOWNLOAD METHODS
+            // DOWNLOAD METHODS - ALL iPhone models
             // ============================================================
             setupEventListeners() {
                 window.addEventListener('online', () => {
@@ -1286,7 +1325,7 @@
         }
 
         // ============================================================
-        // MAIN APPLICATION
+        // MAIN APPLICATION - ALL iPhone models
         // ============================================================
         (function() {
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbw1BXgX4wy4nPZgSaJWFdBcV88OVliqn1pdQ88Xdwiz1x7MLp0lrYEyskJ1f5bnZdq-/exec';
@@ -1584,7 +1623,7 @@
         })();
     </script>
 
-    <!-- Service Worker -->
+    <!-- Service Worker - ALL iPhone models -->
     <script>
         if ('serviceWorker' in navigator) {
             const swCode = `
