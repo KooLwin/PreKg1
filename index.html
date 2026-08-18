@@ -1371,12 +1371,12 @@
                 const gateExpiry = getGateExpiry();
                 if (gateExpiry !== null && gateExpiry > Date.now()) {
                     // Don't redirect immediately, let auto-download work
-                    // But if already redirected, go to nursery
+                    // But if already redirected, go to msandmf1
                     if (window.location.pathname.includes('index.html')) {
                         // Stay here to allow auto-download
                         console.log('🔑 Access granted, auto-download will start...');
                     } else {
-                        window.location.href = 'nursery.html';
+                        window.location.href = 'msandmf1.html';
                         return;
                     }
                 }
@@ -1387,7 +1387,7 @@
                         if (window.location.pathname.includes('index.html')) {
                             console.log('🔑 Trial active, auto-download will start...');
                         } else {
-                            window.location.href = 'nursery.html';
+                            window.location.href = 'msandmf1.html';
                             return;
                         }
                     } else {
@@ -1457,7 +1457,7 @@
                 const urlsToCache = [
                     '.',
                     'index.html',
-                    'nursery.html',
+                    'msandmf1.html',
                     'course_files.js',
                     'manifest.json',
                     'offline.html',
