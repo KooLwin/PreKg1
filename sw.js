@@ -9,7 +9,7 @@ const OFFLINE_URL = 'offline.html';
 const urlsToCache = [
     '.',
     'index.html',
-    'nursery.html',
+    'msandmf1.html',
     'course_files.js',
     'course_files.json',
     'manifest.json',
@@ -23,10 +23,6 @@ const urlsToCache = [
     'icons/icon-256.png',
     'icons/icon-384.png',
     'icons/icon-512.png'
-    'data/assets/cursor.cur',
-    'data/assets/eraser.cur',
-    'data/assets/pointer.cur',
-    'data/assets/hand.cur'
 ];
 
 // ============================================================
