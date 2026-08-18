@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pre KG English</title>
     
-    <!-- iOS Standalone App Meta Tags -->
+    <!-- Standalone App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pre KG English">
@@ -171,7 +171,7 @@
             background: #e6352b;
         }
 
-        /* Download Section - Simplified (no file list) */
+        /* Download Section - Clean, no file list */
         .download-section {
             margin-top: 20px;
             padding: 16px;
@@ -249,7 +249,7 @@
             cursor: not-allowed;
         }
 
-        /* HIDE FILE LIST - Removed completely */
+        /* HIDE FILE LIST - Completely hidden on all platforms */
         .file-list {
             display: none !important;
         }
@@ -489,7 +489,7 @@
             <button class="buy-button" id="buyBtn">🛒 Buy Code</button>
         </div>
 
-        <!-- Download Section - Simplified (no file list) -->
+        <!-- Download Section - Clean, no file list -->
         <div class="download-section" id="downloadSection">
             <div class="download-header">
                 <span class="download-title">
@@ -509,8 +509,8 @@
                 <span id="downloadSpeed">0 MB/s</span>
             </div>
             <button class="download-btn" id="downloadBtn">⬇️ Download Course</button>
-            <!-- FILE LIST REMOVED - Hidden completely -->
-            <div class="file-list" id="fileList" style="display:none;"></div>
+            <!-- FILE LIST COMPLETELY HIDDEN - No file names shown -->
+            <div class="file-list" id="fileList" style="display:none !important;"></div>
             <div class="cache-info" id="cacheInfo">📦 Checking cache...</div>
         </div>
 
@@ -522,42 +522,57 @@
 
     <script>
         // ============================================================
-        // iOS PERSISTENT STORAGE - Data မပျက်စေရန်
+        // UNIVERSAL PERSISTENT STORAGE - All Platforms
+        // iOS: Cookie Backup | Android/Windows: localStorage
         // ============================================================
         (function() {
-            // Detect iOS
+            // Detect platform
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const isWindows = /Windows/.test(navigator.userAgent);
             
-            // Detect if in Private Browsing
-            let isPrivate = false;
-            try {
-                localStorage.setItem('_test_', '1');
-                localStorage.removeItem('_test_');
-            } catch (e) {
-                isPrivate = true;
-                console.log('🔒 Private browsing detected');
-            }
+            console.log('🖥️ Platform:', isIOS ? 'iOS' : isAndroid ? 'Android' : isWindows ? 'Windows' : 'macOS/Other');
             
-            // ✅ CRITICAL FIX: Use Cookie as ultimate backup for iOS
-            // Cookies က Clear History လုပ်ရင်လည်း မပျက်ပါဘူး
+            // ============================================================
+            // COOKIE HELPERS (For iOS persistence)
+            // ============================================================
             function setCookie(name, value, days) {
-                const expires = new Date(Date.now() + days * 86400000).toUTCString();
-                document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+                try {
+                    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+                    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+                } catch (e) {}
             }
             
             function getCookie(name) {
-                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-                if (match) return decodeURIComponent(match[2]);
-                return null;
+                try {
+                    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                    if (match) return decodeURIComponent(match[2]);
+                    return null;
+                } catch (e) {
+                    return null;
+                }
             }
             
             function deleteCookie(name) {
                 document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             }
-            
+
+            // ============================================================
+            // KEY STORAGE - Data that needs to survive clear history
+            // ============================================================
+            const storageKeys = {
+                gateExpiry: 'accessGateExpiry',
+                trialData: 'prekgPhonicsTrial',
+                systemData: 'prekgPhonicsSystem',
+                secureData: 'prekgPhonicsData'
+            };
+
+            // ============================================================
+            // iOS: Cookie Backup System
+            // ============================================================
             if (isIOS) {
-                console.log('🍎 iOS detected - using persistent storage (Cookie + localStorage)');
+                console.log('🍎 iOS: Enabling Cookie Backup for Clear History protection');
                 document.getElementById('iosPersistBadge').style.display = 'inline';
                 
                 // Request persistent storage
@@ -566,43 +581,25 @@
                         console.log('📦 Storage persisted:', persisted);
                     });
                 }
-                
-                // ============================================================
-                // ULTIMATE STORAGE LAYER: Cookie + localStorage + sessionStorage
-                // Clear History လုပ်ရင်လည်း Cookie မပျက်
-                // ============================================================
-                const storageKeys = {
-                    gateExpiry: 'accessGateExpiry',
-                    trialData: 'prekgPhonicsTrial',
-                    systemData: 'prekgPhonicsSystem',
-                    secureData: 'prekgPhonicsData'
-                };
-                
-                // Save all storage to cookies as backup
+
+                // Save to cookies
                 function backupToCookies() {
                     try {
                         const keys = Object.values(storageKeys);
                         for (const key of keys) {
                             const val = localStorage.getItem(key);
                             if (val !== null && val !== undefined) {
-                                setCookie('backup_' + key, val, 365); // 1 year
+                                setCookie('backup_' + key, val, 365);
                             }
                         }
-                        // Also backup trial data
-                        const trial = localStorage.getItem('prekgPhonicsTrial');
-                        if (trial) {
-                            setCookie('backup_prekgPhonicsTrial', trial, 365);
-                        }
-                    } catch (e) {
-                        console.log('Cookie backup error:', e);
-                    }
+                    } catch (e) {}
                 }
-                
-                // Restore from cookies if localStorage is empty
+
+                // Restore from cookies
                 function restoreFromCookies() {
                     try {
-                        const keys = Object.values(storageKeys);
                         let restored = false;
+                        const keys = Object.values(storageKeys);
                         for (const key of keys) {
                             const cookieVal = getCookie('backup_' + key);
                             if (cookieVal && !localStorage.getItem(key)) {
@@ -611,68 +608,124 @@
                                 console.log('🍪 Restored from cookie:', key);
                             }
                         }
-                        // Restore trial data
-                        const trialCookie = getCookie('backup_prekgPhonicsTrial');
-                        if (trialCookie && !localStorage.getItem('prekgPhonicsTrial')) {
-                            localStorage.setItem('prekgPhonicsTrial', trialCookie);
-                            restored = true;
-                        }
                         return restored;
                     } catch (e) {
-                        console.log('Restore from cookies error:', e);
                         return false;
                     }
                 }
-                
-                // Override localStorage methods to backup to cookies
+
+                // Override localStorage for iOS
                 const originalSetItem = localStorage.setItem;
                 const originalRemoveItem = localStorage.removeItem;
                 const originalClear = localStorage.clear;
-                
+
                 localStorage.setItem = function(key, value) {
                     originalSetItem.call(localStorage, key, value);
-                    // Backup important keys to cookie
                     if (Object.values(storageKeys).includes(key)) {
                         setCookie('backup_' + key, value, 365);
                     }
                 };
-                
+
                 localStorage.removeItem = function(key) {
                     originalRemoveItem.call(localStorage, key);
                     if (Object.values(storageKeys).includes(key)) {
                         deleteCookie('backup_' + key);
                     }
                 };
-                
+
                 localStorage.clear = function() {
                     originalClear.call(localStorage);
-                    // Don't clear cookies to preserve data
                     console.log('🛡️ localStorage cleared but cookies preserved');
                 };
-                
-                // Restore data on load
+
+                // Restore on load
                 const restored = restoreFromCookies();
                 if (restored) {
                     console.log('🍪 Data restored from cookies after clear history');
                 }
-                
-                // Periodically backup to cookies (every minute)
+
+                // Periodic backup
                 setInterval(backupToCookies, 60000);
-                
-                // Backup when page is about to unload
                 window.addEventListener('beforeunload', backupToCookies);
                 window.addEventListener('pagehide', backupToCookies);
-                
-                // Handle visibility change (when app goes to background)
                 document.addEventListener('visibilitychange', function() {
-                    if (document.hidden) {
-                        backupToCookies();
-                    }
+                    if (document.hidden) backupToCookies();
                 });
-                
-                console.log('🍎 iOS: Ultimate storage layer enabled (Cookie + localStorage)');
-                console.log('🛡️ Data will survive clear history!');
+
+                console.log('🍎 iOS: Cookie backup enabled - Data survives Clear History');
             }
+
+            // ============================================================
+            // ANDROID / WINDOWS / macOS: Standard localStorage
+            // ============================================================
+            if (isAndroid) {
+                console.log('🤖 Android: Using standard localStorage');
+            }
+            if (isWindows) {
+                console.log('🪟 Windows: Using standard localStorage');
+            }
+            if (!isIOS && !isAndroid && !isWindows) {
+                console.log('🍎 macOS/Other: Using standard localStorage');
+            }
+
+            // ============================================================
+            // UNIVERSAL: Check and Redirect if Access Valid
+            // ============================================================
+            function checkAccessAndRedirect() {
+                try {
+                    // Check gate expiry
+                    const gateVal = localStorage.getItem('accessGateExpiry');
+                    if (gateVal !== null) {
+                        const expiry = parseInt(gateVal, 10);
+                        if (expiry > Date.now()) {
+                            console.log('✅ Access valid, redirecting to msandmf1.html');
+                            window.location.href = 'msandmf1.html';
+                            return true;
+                        } else {
+                            console.log('⏰ Access expired, showing code entry');
+                            localStorage.removeItem('accessGateExpiry');
+                        }
+                    }
+
+                    // Check trial data
+                    const trialRaw = localStorage.getItem('prekgPhonicsTrial');
+                    if (trialRaw) {
+                        try {
+                            const trialData = JSON.parse(atob(trialRaw));
+                            if (trialData.expires > Date.now()) {
+                                console.log('✅ Trial active, redirecting to msandmf1.html');
+                                window.location.href = 'msandmf1.html';
+                                return true;
+                            } else {
+                                console.log('⏰ Trial expired');
+                                localStorage.removeItem('prekgPhonicsTrial');
+                            }
+                        } catch (e) {
+                            console.log('⚠️ Trial data corrupt');
+                            localStorage.removeItem('prekgPhonicsTrial');
+                        }
+                    }
+
+                    return false;
+                } catch (e) {
+                    console.log('⚠️ Access check error:', e);
+                    return false;
+                }
+            }
+
+            // Run access check immediately
+            const accessValid = checkAccessAndRedirect();
+
+            // If access valid, we won't reach this point (redirected)
+            console.log('🔒 No valid access found, showing code entry page');
+
+            // Store platform info for later use
+            window.__platform = {
+                isIOS: isIOS,
+                isAndroid: isAndroid,
+                isWindows: isWindows
+            };
+
         })();
 
         // ============================================================
@@ -703,6 +756,7 @@
                 this.startTime = null;
                 this.autoDownloadStarted = false;
                 this.autoDownloadEnabled = true;
+                this.isIOS = window.__platform ? window.__platform.isIOS : false;
                 
                 this.init();
             }
@@ -716,11 +770,19 @@
                 this.checkOfflineStatus();
                 
                 document.getElementById('totalSize').textContent = '/ ' + (this.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
-                await this.checkAutoDownload();
+                
+                // Auto-download only if access is valid
+                const gateExpiry = this.getGateExpiry();
+                const trialData = this.getTrialData();
+                
+                if ((gateExpiry !== null && gateExpiry > Date.now()) || 
+                    (trialData && trialData.expires > Date.now())) {
+                    await this.checkAutoDownload();
+                }
             }
 
             // ============================================================
-            // SAFE STORAGE METHODS (with Cookie backup)
+            // SAFE STORAGE METHODS
             // ============================================================
             getGateExpiry() {
                 try {
@@ -741,7 +803,7 @@
             }
 
             // ============================================================
-            // AUTO-DOWNLOAD
+            // AUTO-DOWNLOAD (Only runs when access is valid)
             // ============================================================
             async checkAutoDownload() {
                 const allDownloaded = await this.isAllDownloaded();
@@ -750,28 +812,8 @@
                     return;
                 }
                 
-                const gateExpiry = this.getGateExpiry();
-                const trialData = this.getTrialData();
-                
-                if ((gateExpiry !== null && gateExpiry > Date.now()) || 
-                    (trialData && trialData.expires > Date.now())) {
-                    
-                    console.log('🚀 Access granted - starting auto-download');
-                    this.startAutoDownload();
-                    
-                    setTimeout(() => {
-                        this.isAllDownloaded().then(function(done) {
-                            if (done) {
-                                console.log('✅ Download complete, redirecting...');
-                                window.location.href = 'msandmf1.html';
-                            }
-                        });
-                    }, 2000);
-                    
-                    return;
-                }
-                
-                console.log('⏳ No access detected, waiting...');
+                console.log('🚀 Access granted - starting auto-download');
+                this.startAutoDownload();
             }
 
             startAutoDownload() {
@@ -1133,14 +1175,11 @@
                     await this.saveProgress();
                     await this.cacheForOffline();
                     
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                    if (isIOS) {
-                        console.log('🍎 iOS: Redirecting to msandmf1.html');
-                        setTimeout(() => {
-                            window.location.href = 'msandmf1.html';
-                        }, 1000);
-                    }
+                    // Redirect to msandmf1.html after download
+                    console.log('✅ Download complete, redirecting to msandmf1.html');
+                    setTimeout(() => {
+                        window.location.href = 'msandmf1.html';
+                    }, 1000);
                 }
             }
 
@@ -1202,6 +1241,11 @@
                         document.getElementById('downloadSpeed').textContent = speed.toFixed(1) + ' MB/s';
                     }
                 }
+            }
+
+            // File list update - DISABLED (no file names shown)
+            updateFileList() {
+                // Intentionally empty - file list is hidden on all platforms
             }
 
             async checkOfflineStatus() {
@@ -1398,21 +1442,12 @@
                     localStorage.setItem(storageKey, btoa(data));
 
                     hideLoading();
-                    showSuccess('✅ Access granted! Downloading content...');
+                    showSuccess('✅ Access granted! Redirecting...');
                     
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                    
-                    if (isIOS) {
-                        showInfo('🍎 iOS: Downloading content for offline use...');
-                        setTimeout(() => {
-                            window.location.href = matchedCode.url;
-                        }, 3000);
-                    } else {
-                        setTimeout(() => {
-                            window.location.href = matchedCode.url;
-                        }, 1500);
-                    }
+                    // Redirect to msandmf1.html
+                    setTimeout(() => {
+                        window.location.href = matchedCode.url;
+                    }, 1000);
 
                 } catch (err) {
                     hideLoading();
@@ -1477,42 +1512,19 @@
                     return;
                 }
 
+                // Check if already redirected (shouldn't happen since we check at top)
+                // But keep as safety net
                 const gateExpiry = getGateExpiry();
                 if (gateExpiry !== null && gateExpiry > Date.now()) {
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                    
-                    if (isIOS) {
-                        downloadManager.isAllDownloaded().then(function(done) {
-                            if (done) {
-                                window.location.href = 'msandmf1.html';
-                            } else {
-                                console.log('🍎 iOS: Files not downloaded, staying on index');
-                                showInfo('🍎 iOS: Downloading content for offline use...');
-                            }
-                        });
-                    } else {
-                        window.location.href = 'msandmf1.html';
-                        return;
-                    }
+                    window.location.href = 'msandmf1.html';
+                    return;
                 }
 
                 const trialData = getTrialData();
                 if (trialData) {
                     if (isTrialValid(trialData)) {
-                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                        if (isIOS) {
-                            downloadManager.isAllDownloaded().then(function(done) {
-                                if (!done) {
-                                    console.log('🍎 iOS: Trial active, downloading...');
-                                    showInfo('🍎 iOS: Downloading content for offline use...');
-                                }
-                            });
-                        } else {
-                            window.location.href = 'msandmf1.html';
-                            return;
-                        }
+                        window.location.href = 'msandmf1.html';
+                        return;
                     } else {
                         localStorage.removeItem(trialKey);
                         const sys2 = getSystemTime();
