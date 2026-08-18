@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Pre KG English</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(145deg, #f2f6fc, #e8f0fe);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        .icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #1c2e4a;
+            margin-bottom: 8px;
+        }
+        
+        p {
+            color: #5b6f87;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        }
+        
+        .btn:active {
+            transform: scale(0.96);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #007aff;
+            box-shadow: none;
+            border: 1.5px solid #007aff;
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:active {
+            background: rgba(0, 122, 255, 0.05);
+        }
+        
+        .features {
+            margin-top: 20px;
+            text-align: left;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 16px;
+        }
+        
+        .features li {
+            list-style: none;
+            padding: 6px 0;
+            color: #5b6f87;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .features li::before {
+            content: '✅';
+            font-size: 16px;
+        }
+        
+        .retry-btn {
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>
+            အင်တာနက်ချိတ်ဆက်မှု မရှိပါ။<br>
+            သင်ခန်းစာတွေကို အော့ဖ်လိုင်းမှာ ဆက်လက်လေ့လာနိုင်ပါတယ်။
+        </p>
+        
+        <div>
+            <a href="index.html" class="btn">🏠 Go to Home</a>
+            <button class="btn btn-secondary" onclick="location.reload()">🔄 Retry</button>
+        </div>
+        
+        <div class="features">
+            <li>သင်ခန်းစာတွေကို အော့ဖ်လိုင်းမှာ ကြည့်ရှုနိုင်သည်</li>
+            <li>ဒေါင်းလုဒ်လုပ်ထားသော ဖိုင်များကို သုံးနိုင်သည်</li>
+            <li>အင်တာနက်ပြန်ရသည်အထိ ဆက်လက်လေ့လာနိုင်သည်</li>
+        </div>
+        
+        <p style="font-size:12px; color:#8e9aab; margin-top:16px;">
+            အင်တာနက်ချိတ်ဆက်ပြီးပါက စာမျက်နှာကို ပြန်လည်စတင်ပါ။
+        </p>
+    </div>
+    
+    <script>
+        // Check online status periodically
+        setInterval(function() {
+            if (navigator.onLine) {
+                location.reload();
+            }
+        }, 5000);
+        
+        // Listen for online event
+        window.addEventListener('online', function() {
+            location.reload();
+        });
+    </script>
+</body>
+</html>

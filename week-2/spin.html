@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Feelings Wheel Game for Kids | Spin & Learn Emotions</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none; /* avoid accidental text selection while tapping */
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: white; /* အဖြူရောင် background */
+      font-family: 'Segoe UI', 'Comic Neue', 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', 'Nunito', system-ui, -apple-system, 'Roboto', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Force landscape orientation friendly but allow any size */
+      padding: 16px;
+    }
+
+    /* Main game container — always landscape-like scaling */
+    .game-container {
+      background: white;
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px 24px 30px 24px;
+      width: 100%;
+      max-width: 1300px;
+      transition: all 0.2s ease;
+    }
+
+    /* Emoji circle row on top */
+    .emoji-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px 18px;
+      margin-bottom: 28px;
+      padding: 10px 8px;
+      background: #fef9e8;
+      border-radius: 100px;
+      box-shadow: inset 0 1px 4px #0001, 0 4px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .emoji-circle {
+      background: white;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      box-shadow: 0 6px 0 #e0d6c6;
+      transition: transform 0.2s ease;
+      cursor: default;
+      background: linear-gradient(145deg, #ffffff, #fff6e8);
+    }
+
+    /* for kids: subtle hover */
+    @media (hover: hover) {
+      .emoji-circle:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+    }
+
+    /* main wheel + spin area layout: flexible row for landscape */
+    .wheel-area {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 20px 0 30px;
+    }
+
+    /* canvas container */
+    .canvas-wrapper {
+      flex: 2;
+      min-width: 280px;
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+      background: #fff8f0;
+      border-radius: 50%;
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1), 0 0 0 8px white, 0 0 0 12px #ffe0b5;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    /* controls panel */
+    .controls-panel {
+      flex: 1;
+      min-width: 210px;
+      background: #fff6ed;
+      border-radius: 60px;
+      padding: 20px 24px;
+      text-align: center;
+      box-shadow: 0 12px 18px rgba(0,0,0,0.03), inset 0 1px 0 white;
+    }
+
+    .spin-btn {
+      background: #ffb347;
+      background: linear-gradient(135deg, #ffaa33, #ff8c1a);
+      border: none;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 14px 28px;
+      border-radius: 60px;
+      color: white;
+      font-family: inherit;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #b45f1b;
+      transition: 0.07s linear;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .spin-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #b45f1b;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 48px;
+      padding: 14px 10px;
+      margin: 18px 0;
+      font-size: 1.6rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      border: 2px solid #ffd89a;
+      box-shadow: 0 5px 0 #ffe0b0;
+    }
+
+    .result-emoji {
+      font-size: 3rem;
+      background: #fff0dd;
+      border-radius: 60px;
+      padding: 8px 18px;
+    }
+
+    .result-text {
+      font-size: 1.9rem;
+      color: #3b2a1f;
+      text-transform: capitalize;
+    }
+
+    .feelings-hint {
+      font-size: 1rem;
+      color: #b97f44;
+      background: #fff0e0;
+      border-radius: 40px;
+      padding: 8px 12px;
+      margin-top: 12px;
+    }
+
+    /* responsive: on narrow screens keep side-by-side but allow column if too squeezed */
+    @media (max-width: 750px) {
+      .wheel-area {
+        flex-direction: column;
+      }
+      .controls-panel {
+        width: 90%;
+        margin-top: 10px;
+      }
+      .emoji-circle {
+        width: 48px;
+        height: 48px;
+        font-size: 28px;
+      }
+      .result-text {
+        font-size: 1.5rem;
+      }
+      .result-emoji {
+        font-size: 2.5rem;
+      }
+      .game-container {
+        padding: 16px;
+      }
+    }
+
+    /* landscape orientation tweaks: for tablets/phones in landscape mode we use extra width */
+    @media (orientation: landscape) and (max-height: 550px) {
+      .game-container {
+        padding: 12px 20px;
+      }
+      .emoji-strip {
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .emoji-circle {
+        width: 44px;
+        height: 44px;
+        font-size: 26px;
+      }
+      .controls-panel {
+        padding: 12px 20px;
+      }
+      .spin-btn {
+        padding: 8px 16px;
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+      }
+      .result-card {
+        margin: 8px 0;
+        padding: 8px;
+      }
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #cfb284;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <!-- Top emoji circles that reflect all feelings -->
+  <div class="emoji-strip" id="emojiStrip"></div>
+
+  <div class="wheel-area">
+    <div class="canvas-wrapper">
+      <canvas id="feelingsWheelCanvas" width="600" height="600"></canvas>
+    </div>
+    <div class="controls-panel">
+      <button class="spin-btn" id="spinButton">🌀 SPIN WHEEL 🌀</button>
+      <div class="result-card" id="resultCard">
+        <div class="result-emoji" id="resultEmoji">😊</div>
+        <div class="result-text" id="resultText">Tap spin!</div>
+      </div>
+      <div class="feelings-hint">
+      </div>
+    </div>
+</div>
+
+<script>
+  (function() {
+    // ----- FEELINGS DATA with emoji + color + label (15 items exactly)
+    const feelingsList = [
+      { name: "Sad",      emoji: "😢", color: "#5D9BEC" },   // soft blue sad
+      { name: "Angry",    emoji: "😠", color: "#E15554" },   // red-orange angry
+      { name: "Surprised",emoji: "😲", color: "#F4D03F" },   // bright yellow surprise
+      { name: "Proud",    emoji: "😌", color: "#F7B05E" },   // warm proud orange
+      { name: "Sleepy",   emoji: "😴", color: "#A99F96" },   // greyish beige
+      { name: "Scared",   emoji: "😨", color: "#B980EA" },   // lavender fear
+      { name: "Relaxed",  emoji: "😌", color: "#6ABF69" },   // calm green
+      { name: "Cold",     emoji: "🥶", color: "#7CCFF2" },   // icy blue
+      { name: "Hot",      emoji: "🔥", color: "#F26B38" },   // hot orange/red
+      { name: "Hungry",   emoji: "🍔", color: "#DFA35E" },   // food brownish
+      { name: "Thirsty",  emoji: "🥤", color: "#4797B3" },   // thirst aqua
+      { name: "Tired",    emoji: "😫", color: "#BC9A6C" },   // muted brown
+      { name: "Excited",  emoji: "🤩", color: "#FAC05E" },   // sparkling yellow
+      { name: "Loved",    emoji: "🥰", color: "#F5A9BC" },   // pink love
+      { name: "Hurt",     emoji: "💔", color: "#C44569" }    // deep pinkish hurt
+    ];
+
+    const TOTAL_SEGMENTS = feelingsList.length;
+    let currentRotation = 0;   // radians
+    let spinning = false;
+    let animationId = null;
+    let spinStartTime = 0;
+    let spinDuration = 1800;    // ms
+    let spinStartRotation = 0;
+    let spinTargetDelta = 0;
+
+    const canvas = document.getElementById('feelingsWheelCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Audio context and sound effect (simple beep / win tone using Web Audio)
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx && window.AudioContext) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSpinEndSound(feelingName) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        // resume if suspended (user interaction)
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().then(() => {
+            playBeepForFeeling(feelingName);
+          }).catch(e => console.log("Audio resume error", e));
+        } else {
+          playBeepForFeeling(feelingName);
+        }
+      } catch(e) { console.log("audio error", e); }
+    }
+
+    function playBeepForFeeling(feelingName) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      // dynamic pitch based on feeling (fun)
+      let freq = 523.25; // C5 default
+      if (feelingName === "Excited") freq = 880;
+      else if (feelingName === "Sad") freq = 329.63;
+      else if (feelingName === "Angry") freq = 155.56;
+      else if (feelingName === "Proud") freq = 659.25;
+      else if (feelingName === "Surprised") freq = 987.77;
+      else if (feelingName === "Loved") freq = 493.88;
+      else freq = 440 + (feelingsList.findIndex(f => f.name === feelingName) * 15);
+      
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+      osc.start();
+      osc.stop(now + 0.7);
+      // also add little 'ding' effect
+      const ding = audioCtx.createOscillator();
+      const dingGain = audioCtx.createGain();
+      ding.connect(dingGain);
+      dingGain.connect(audioCtx.destination);
+      ding.frequency.value = 1760;
+      dingGain.gain.setValueAtTime(0.08, now);
+      dingGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+      ding.start();
+      ding.stop(now + 0.35);
+    }
+
+    // Draw the wheel with current rotation angle
+    function drawWheel(rotationRad) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const centerX = w/2;
+      const centerY = h/2;
+      const radius = Math.min(w, h) * 0.44;
+      ctx.clearRect(0, 0, w, h);
+      
+      // background soft white inside circle
+      ctx.save();
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius + 12, 0, Math.PI*2);
+      ctx.fillStyle = "#FFF3E6";
+      ctx.fill();
+      ctx.shadowColor = "rgba(0,0,0,0.1)";
+      ctx.shadowBlur = 8;
+      
+      const angleStep = (Math.PI * 2) / TOTAL_SEGMENTS;
+      for (let i = 0; i < TOTAL_SEGMENTS; i++) {
+        const start = i * angleStep + rotationRad;
+        const end = (i+1) * angleStep + rotationRad;
+        const feeling = feelingsList[i];
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = feeling.color;
+        ctx.fill();
+        ctx.save();
+        ctx.shadowBlur = 2;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.restore();
+        
+        // draw text & emoji inside slice
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(start + angleStep/2);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const labelRadius = radius * 0.7;
+        // Emoji first then text? combine for readability: show emoji + text small
+        const displayText = feeling.emoji + " " + feeling.name;
+        ctx.font = `bold ${Math.max(14, Math.floor(radius * 0.12))}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui, sans-serif`;
+        ctx.fillStyle = "#1f2a2e";
+        ctx.shadowBlur = 0;
+        ctx.fillText(displayText, labelRadius, 8);
+        ctx.font = `bold ${Math.max(12, Math.floor(radius * 0.09))}px "Segoe UI Emoji", "Apple Color Emoji"`;
+        ctx.fillStyle = "#2c2b26";
+        ctx.restore();
+      }
+      
+      // center circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.22, 0, Math.PI*2);
+      ctx.fillStyle = "#FFF5E8";
+      ctx.fill();
+      ctx.strokeStyle = "#FFC285";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.fillStyle = "#b96f30";
+      ctx.font = `bold ${radius * 0.12}px "Segoe UI Emoji"`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⭐", centerX, centerY+2);
+      
+      // pointer marker (static triangle on top)
+      ctx.beginPath();
+      const pointerX = centerX;
+      const pointerY = centerY - radius - 6;
+      ctx.moveTo(pointerX - 12, pointerY + 4);
+      ctx.lineTo(pointerX, pointerY - 6);
+      ctx.lineTo(pointerX + 12, pointerY + 4);
+      ctx.fillStyle = "#E05A2A";
+      ctx.fill();
+      ctx.fillStyle = "#A0401A";
+      ctx.font = "bold 20px sans-serif";
+      ctx.fillText("▼", pointerX-7, pointerY+8);
+    }
+    
+    // get current feeling based on rotation (where pointer at top = -90° angle)
+    function getCurrentFeeling(rotationRad) {
+      // pointer direction: upward ( -PI/2 direction in canvas coords)
+      const pointerAngle = -Math.PI / 2; // 12 o'clock
+      // total angle of slice = (angle offset from rotation)
+      const angleStep = (Math.PI * 2) / TOTAL_SEGMENTS;
+      // we find the slice that contains the pointer angle in world coordinates
+      // worldAngle = pointerAngle - rotationRad (because wheel rotates by rotationRad)
+      let worldAngle = pointerAngle - rotationRad;
+      // normalize to [0, 2PI)
+      worldAngle = ((worldAngle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+      const index = Math.floor(worldAngle / angleStep) % TOTAL_SEGMENTS;
+      return feelingsList[index];
+    }
+    
+    // update result UI with feeling
+    function updateResultUI(feeling) {
+      const resultEmojiSpan = document.getElementById('resultEmoji');
+      const resultTextSpan = document.getElementById('resultText');
+      resultEmojiSpan.innerText = feeling.emoji;
+      resultTextSpan.innerText = feeling.name;
+      // little playful bounce effect
+      const card = document.getElementById('resultCard');
+      card.style.transform = 'scale(1.02)';
+      setTimeout(() => { if(card) card.style.transform = ''; }, 150);
+    }
+    
+    // spin animation using requestAnimationFrame (easeOutCubic)
+    function startSpin() {
+      if (spinning) return;
+      // play a short 'spin start' click sound? optional but friendly
+      try {
+        initAudio();
+        if(audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        // short blip for spin start
+        if(audioCtx && soundEnabled){
+          const blip = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          blip.connect(gain);
+          gain.connect(audioCtx.destination);
+          blip.frequency.value = 880;
+          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+          blip.start();
+          blip.stop(audioCtx.currentTime + 0.2);
+        }
+      } catch(e){}
+      
+      spinning = true;
+      spinStartTime = performance.now();
+      spinStartRotation = currentRotation;
+      // random total delta: at least 5 full rotations + random extra 2~8pi
+      const extraRounds = (Math.random() * 6 + 4) * Math.PI * 2; // 4 to 10 full turns
+      spinTargetDelta = extraRounds;
+      animateSpin();
+    }
+    
+    function animateSpin() {
+      const now = performance.now();
+      const elapsed = now - spinStartTime;
+      let t = Math.min(1, elapsed / spinDuration);
+      // easeOutCubic
+      const easeOut = 1 - Math.pow(1 - t, 3);
+      const newRotation = spinStartRotation + spinTargetDelta * easeOut;
+      currentRotation = newRotation % (Math.PI * 2);
+      drawWheel(currentRotation);
+      
+      if (t < 1) {
+        animationId = requestAnimationFrame(animateSpin);
+      } else {
+        // finalize
+        currentRotation = (spinStartRotation + spinTargetDelta) % (Math.PI * 2);
+        drawWheel(currentRotation);
+        spinning = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        const finalFeeling = getCurrentFeeling(currentRotation);
+        updateResultUI(finalFeeling);
+        playSpinEndSound(finalFeeling.name);
+      }
+    }
+    
+    // create top emoji strip circles
+    function buildEmojiStrip() {
+      const container = document.getElementById('emojiStrip');
+      container.innerHTML = '';
+      feelingsList.forEach(feeling => {
+        const circleDiv = document.createElement('div');
+        circleDiv.className = 'emoji-circle';
+        circleDiv.setAttribute('aria-label', feeling.name);
+        circleDiv.innerHTML = feeling.emoji;
+        // optional tooltip
+        circleDiv.title = feeling.name;
+        container.appendChild(circleDiv);
+      });
+    }
+    
+    // resize handler ensures canvas crisp drawing
+    function handleCanvasSize() {
+      const container = canvas.parentElement;
+      const maxWidth = Math.min(500, container.clientWidth);
+      canvas.style.width = `${maxWidth}px`;
+      canvas.style.height = `${maxWidth}px`;
+      // actual canvas resolution fixed 600x600 (retina friendly)
+      canvas.width = 600;
+      canvas.height = 600;
+      drawWheel(currentRotation);
+    }
+    
+    // manual spin when clicking on canvas? (kid friendly)
+    function onCanvasClick(e) {
+      if(spinning) return;
+      startSpin();
+    }
+    
+    // window load init
+    function init() {
+      buildEmojiStrip();
+      handleCanvasSize();
+      drawWheel(0);
+      const spinBtn = document.getElementById('spinButton');
+      spinBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(spinning) return;
+        startSpin();
+      });
+      canvas.addEventListener('click', onCanvasClick);
+      window.addEventListener('resize', () => {
+        handleCanvasSize();
+      });
+      // for devices: ensure that audio context gets resumed on first user interaction (good practice)
+      const resumeAudioOnFirstTouch = () => {
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        document.body.removeEventListener('touchstart', resumeAudioOnFirstTouch);
+        document.body.removeEventListener('click', resumeAudioOnFirstTouch);
+      };
+      document.body.addEventListener('touchstart', resumeAudioOnFirstTouch);
+      document.body.addEventListener('click', resumeAudioOnFirstTouch);
+      // initial random slight rotation? maybe keep zero but ok.
+      // set result default neutral
+      const neutralFeel = feelingsList[0];
+      updateResultUI(neutralFeel);
+    }
+    
+    init();
+  })();
+</script>
+</body>
+</html>

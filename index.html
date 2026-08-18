@@ -17,6 +17,9 @@
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <link rel="manifest" href="manifest.json">
     
+    <!-- Load Course Files (Auto-Generated) -->
+    <script src="course_files.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -247,6 +250,8 @@
             text-align: left;
             font-size: 11px;
             color: #5b6f87;
+            max-height: 150px;
+            overflow-y: auto;
         }
         .file-item {
             display: flex;
@@ -407,6 +412,17 @@
             opacity: 0.6;
         }
 
+        .file-count-badge {
+            display: inline-block;
+            background: rgba(0, 122, 255, 0.1);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #007aff;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
         @media (max-width: 420px) {
             .container {
                 padding: 24px 18px 22px;
@@ -450,7 +466,7 @@
         <!-- Download Section -->
         <div class="download-section" id="downloadSection">
             <div class="download-header">
-                <span class="download-title">📥 Course Content</span>
+                <span class="download-title">📥 Course Content <span class="file-count-badge" id="fileCountBadge">0 files</span></span>
                 <span class="download-status" id="downloadStatus">Not Downloaded</span>
             </div>
             <div class="progress-bar">
@@ -482,31 +498,18 @@
                 this.dbVersion = 1;
                 this.db = null;
                 
-                // iSpring Course Files - Update these with actual file paths
-                this.courseFiles = [
-                    { id: 'nursery.html', path: 'nursery.html', size: 0 },
-                    { id: 'data/player.js', path: 'data/player.js', size: 0 },
-                    { id: 'data/player.css', path: 'data/player.css', size: 0 },
-                    { id: 'data/skin.js', path: 'data/skin.js', size: 0 },
-                    { id: 'data/skin.css', path: 'data/skin.css', size: 0 },
-                    { id: 'data/assets/audio1.mp3', path: 'data/assets/audio1.mp3', size: 0 },
-                    { id: 'data/assets/audio2.mp3', path: 'data/assets/audio2.mp3', size: 0 },
-                    { id: 'data/assets/video1.mp4', path: 'data/assets/video1.mp4', size: 0 },
-                    { id: 'data/assets/video2.mp4', path: 'data/assets/video2.mp4', size: 0 },
-                    { id: 'data/assets/slide1.jpg', path: 'data/assets/slide1.jpg', size: 0 },
-                    { id: 'data/assets/slide2.jpg', path: 'data/assets/slide2.jpg', size: 0 },
-                    { id: 'data/assets/slide3.jpg', path: 'data/assets/slide3.jpg', size: 0 },
-                    { id: 'data/assets/slide4.jpg', path: 'data/assets/slide4.jpg', size: 0 },
-                    { id: 'data/assets/slide5.jpg', path: 'data/assets/slide5.jpg', size: 0 },
-                    { id: 'data/assets/slide6.jpg', path: 'data/assets/slide6.jpg', size: 0 },
-                    { id: 'data/assets/slide7.jpg', path: 'data/assets/slide7.jpg', size: 0 },
-                    { id: 'data/assets/slide8.jpg', path: 'data/assets/slide8.jpg', size: 0 },
-                    { id: 'data/assets/slide9.jpg', path: 'data/assets/slide9.jpg', size: 0 },
-                    { id: 'data/assets/slide10.jpg', path: 'data/assets/slide10.jpg', size: 0 },
-                    // Add all iSpring generated files here
-                ];
+                // Load from external course_files.js
+                if (typeof courseFiles !== 'undefined' && courseFiles.length > 0) {
+                    this.courseFiles = courseFiles;
+                    this.totalSize = courseFiles.reduce((sum, f) => sum + f.size, 0);
+                    console.log(`✅ Loaded ${this.courseFiles.length} course files (${(this.totalSize / (1024 * 1024)).toFixed(1)} MB)`);
+                    document.getElementById('fileCountBadge').textContent = this.courseFiles.length + ' files';
+                } else {
+                    console.warn('⚠️ No course files found, using empty list');
+                    this.courseFiles = [];
+                    this.totalSize = 0;
+                }
                 
-                this.totalSize = 0;
                 this.downloadedSize = 0;
                 this.isDownloading = false;
                 this.isPaused = false;
@@ -524,6 +527,10 @@
                 this.setupEventListeners();
                 this.updateUI();
                 this.checkOfflineStatus();
+                this.updateFileList();
+                
+                // Show total size
+                document.getElementById('totalSize').textContent = '/ ' + (this.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
             }
 
             initIndexedDB() {
@@ -552,7 +559,12 @@
             }
 
             async getFileSizes() {
-                // Try to get file sizes from server
+                // If we already have sizes from course_files.js, use them
+                if (this.courseFiles.length > 0 && this.courseFiles[0].size > 0) {
+                    return;
+                }
+                
+                // Otherwise try to get sizes from server
                 for (let i = 0; i < this.courseFiles.length; i++) {
                     const file = this.courseFiles[i];
                     try {
@@ -563,8 +575,8 @@
                             this.totalSize += file.size;
                         }
                     } catch (e) {
-                        // If can't get size, estimate
-                        file.size = 1024 * 1024; // 1MB default
+                        // If can't get size, use default
+                        file.size = 1024 * 1024;
                         this.totalSize += file.size;
                     }
                 }
@@ -580,7 +592,6 @@
                         this.fileStatus = metadata.fileStatus || {};
                     }
                     
-                    // Get actual sizes from IndexedDB
                     const files = await this.getAllFiles();
                     let total = 0;
                     for (const file of files) {
@@ -710,6 +721,11 @@
             async startDownload() {
                 if (this.isDownloading) return;
                 
+                if (this.courseFiles.length === 0) {
+                    this.showMessage('⚠️ No course files found. Please check course_files.js', 'error');
+                    return;
+                }
+                
                 const storageEstimate = await this.getStorageEstimate();
                 if (storageEstimate && storageEstimate.quota - storageEstimate.usage < this.totalSize) {
                     this.showMessage('⚠️ Not enough storage space. Please free up space.', 'error');
@@ -755,7 +771,6 @@
                 for (let i = this.currentFileIndex; i < this.courseFiles.length && !this.isPaused; i++) {
                     const file = this.courseFiles[i];
                     
-                    // Skip if already downloaded
                     const existing = await this.getFile(file.id);
                     if (existing) {
                         this.fileStatus[file.id] = { status: 'done' };
@@ -787,7 +802,6 @@
                         this.updateUI();
                         this.updateFileList();
                         
-                        // Save progress every few files
                         if (i % 3 === 0) {
                             await this.saveProgress();
                         }
@@ -798,7 +812,6 @@
                         this.updateFileList();
                         this.showMessage('⚠️ Error downloading: ' + file.id, 'error');
                         
-                        // Retry logic
                         let retries = 0;
                         while (retries < 3 && !this.isPaused) {
                             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -827,7 +840,6 @@
                     }
                 }
                 
-                // Check if complete
                 const allDownloaded = await this.isAllDownloaded();
                 if (allDownloaded) {
                     this.isDownloading = false;
@@ -837,8 +849,6 @@
                     document.getElementById('downloadStatus').style.color = '#34c759';
                     this.showMessage('🎉 Course downloaded! You can now use offline.', 'success');
                     await this.saveProgress();
-                    
-                    // Cache for offline use
                     await this.cacheForOffline();
                 }
             }
@@ -874,7 +884,8 @@
                     'mp3': 'audio/mpeg',
                     'mp4': 'video/mp4',
                     'webm': 'video/webm',
-                    'pdf': 'application/pdf'
+                    'pdf': 'application/pdf',
+                    'xml': 'application/xml'
                 };
                 return types[ext] || 'application/octet-stream';
             }
@@ -910,16 +921,24 @@
             updateFileList() {
                 const list = document.getElementById('fileList');
                 let html = '';
+                const maxDisplay = 20;
+                let count = 0;
                 for (const [id, status] of Object.entries(this.fileStatus)) {
+                    if (count >= maxDisplay) {
+                        html += `<div class="file-item"><span>... and ${Object.keys(this.fileStatus).length - maxDisplay} more</span></div>`;
+                        break;
+                    }
                     const statusText = status.status === 'done' ? '✅' : 
                                       status.status === 'downloading' ? '⏳' : 
                                       status.status === 'error' ? '❌' : '⏸️';
                     const className = status.status === 'done' ? 'done' : 
                                      status.status === 'error' ? 'error' : 'pending';
+                    const fileName = id.split('/').pop();
                     html += `<div class="file-item">
-                        <span>${id}</span>
+                        <span>${fileName}</span>
                         <span class="status ${className}">${statusText}</span>
                     </div>`;
+                    count++;
                 }
                 list.innerHTML = html || '<div style="text-align:center;color:#8e9aab;">No files</div>';
             }
@@ -1189,14 +1208,14 @@
 
                 const gateExpiry = getGateExpiry();
                 if (gateExpiry !== null && gateExpiry > Date.now()) {
-                    window.location.href = 'nursery.html';
+                    window.location.href = 'msandmf1.html';
                     return;
                 }
 
                 const trialData = getTrialData();
                 if (trialData) {
                     if (isTrialValid(trialData)) {
-                        window.location.href = 'nursery.html';
+                        window.location.href = 'msandmf1.html';
                         return;
                     } else {
                         localStorage.removeItem(trialKey);
@@ -1265,8 +1284,10 @@
                 const urlsToCache = [
                     '.',
                     'index.html',
-                    'nursery.html',
-                    'icons/icon-192.png'
+                    'msandmf1.html',
+                    'course_files.js',
+                    'icons/icon-192.png',
+                    'icons/icon-512.png'
                 ];
 
                 self.addEventListener('install', function(event) {
