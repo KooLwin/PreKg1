@@ -21,75 +21,450 @@
     <script src="course_files.js"></script>
     
     <style>
-        /* ... same styles as before ... */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #f2f6fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background: linear-gradient(145deg, #f2f6fc, #e8f0fe); min-height: 100vh; min-height: 100dvh; display: flex; justify-content: center; align-items: center; padding: 16px; margin: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-        ::-webkit-scrollbar { display: none; }
-        .container { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 32px 24px 28px; border-radius: 40px; box-shadow: 0 20px 60px rgba(0, 20, 50, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05); max-width: 460px; width: 100%; border: 1px solid rgba(255, 255, 255, 0.6); position: relative; transition: all 0.2s ease; text-align: center; max-height: 95vh; overflow-y: auto; }
-        h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: #1c2e4a; margin-bottom: 4px; }
-        .subtitle { font-size: 16px; color: #5b6f87; font-weight: 400; margin-bottom: 28px; letter-spacing: 0.3px; }
-        input[type="text"] { padding: 16px 20px; font-size: 22px; font-weight: 600; letter-spacing: 6px; border: none; border-radius: 16px; background: rgba(245, 249, 255, 0.9); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02); margin: 8px 0 4px; width: 100%; text-align: center; color: #1a2b3e; transition: box-shadow 0.2s; }
-        input[type="text"]:focus { outline: none; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02), 0 0 0 2px #007aff; background: #ffffff; }
-        input[type="text"]:disabled { background: #e9ecf0; color: #8e9aab; opacity: 0.8; }
-        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        button { padding: 16px 20px; font-size: 17px; font-weight: 600; border: none; border-radius: 18px; background: #007aff; color: white; cursor: pointer; transition: all 0.15s ease; width: 100%; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); position: relative; -webkit-user-select: none; user-select: none; }
-        button:active:not(:disabled) { transform: scale(0.97); opacity: 0.8; }
-        button:disabled { background: #b0bac9; box-shadow: none; opacity: 0.6; cursor: not-allowed; }
-        .activate-button { background: linear-gradient(135deg, #f5a623, #f7b731); box-shadow: 0 4px 16px rgba(245, 166, 35, 0.25); color: #1c2e4a; }
-        .activate-button:active:not(:disabled) { background: #e09c1e; }
-        .free-button { background: #34c759; box-shadow: 0 4px 14px rgba(52, 199, 89, 0.25); }
-        .free-button:active:not(:disabled) { background: #2db84e; }
-        .buy-button { background: #ff3b30; box-shadow: 0 4px 14px rgba(255, 59, 48, 0.25); }
-        .buy-button:active:not(:disabled) { background: #e6352b; }
-        .download-section { margin-top: 20px; padding: 16px; background: rgba(0, 122, 255, 0.06); border-radius: 20px; border: 1px solid rgba(0, 122, 255, 0.1); }
-        .download-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .download-title { font-size: 14px; font-weight: 600; color: #1c2e4a; }
-        .download-status { font-size: 12px; color: #5b6f87; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f2f6fc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f2f6fc, #e8f0fe);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 32px 24px 28px;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05);
+            max-width: 460px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            transition: all 0.2s ease;
+            text-align: center;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1c2e4a;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #5b6f87;
+            font-weight: 400;
+            margin-bottom: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        input[type="text"] {
+            padding: 16px 20px;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 6px;
+            border: none;
+            border-radius: 16px;
+            background: rgba(245, 249, 255, 0.9);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            margin: 8px 0 4px;
+            width: 100%;
+            text-align: center;
+            color: #1a2b3e;
+            transition: box-shadow 0.2s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02), 0 0 0 2px #007aff;
+            background: #ffffff;
+        }
+        input[type="text"]:disabled {
+            background: #e9ecf0;
+            color: #8e9aab;
+            opacity: 0.8;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 18px;
+            background: #007aff;
+            color: white;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            width: 100%;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        button:active:not(:disabled) {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+        button:disabled {
+            background: #b0bac9;
+            box-shadow: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .activate-button {
+            background: linear-gradient(135deg, #f5a623, #f7b731);
+            box-shadow: 0 4px 16px rgba(245, 166, 35, 0.25);
+            color: #1c2e4a;
+        }
+        .activate-button:active:not(:disabled) {
+            background: #e09c1e;
+        }
+
+        .free-button {
+            background: #34c759;
+            box-shadow: 0 4px 14px rgba(52, 199, 89, 0.25);
+        }
+        .free-button:active:not(:disabled) {
+            background: #2db84e;
+        }
+
+        .buy-button {
+            background: #ff3b30;
+            box-shadow: 0 4px 14px rgba(255, 59, 48, 0.25);
+        }
+        .buy-button:active:not(:disabled) {
+            background: #e6352b;
+        }
+
+        /* Download Section - Simplified (no file list) */
+        .download-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0, 122, 255, 0.06);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 122, 255, 0.1);
+        }
+
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .download-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1c2e4a;
+        }
+
+        .download-status {
+            font-size: 12px;
+            color: #5b6f87;
+        }
         .download-status.downloading { color: #007aff; }
         .download-status.done { color: #34c759; }
         .download-status.paused { color: #f5a623; }
         .download-status.error { color: #ff3b30; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(0, 0, 0, 0.06); border-radius: 10px; overflow: hidden; margin-top: 4px; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #007aff, #34c759); border-radius: 10px; width: 0%; transition: width 0.3s ease; }
-        .download-details { display: flex; justify-content: space-between; font-size: 11px; color: #8e9aab; margin-top: 6px; }
-        .download-btn { background: #007aff; color: white; border: none; border-radius: 12px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 8px; width: 100%; }
-        .download-btn:active { transform: scale(0.95); }
-        .download-btn:disabled { background: #b0bac9; cursor: not-allowed; }
-        .file-list { margin-top: 12px; text-align: left; font-size: 11px; color: #5b6f87; max-height: 150px; overflow-y: auto; }
-        .file-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
-        .file-item .status { font-weight: 600; }
-        .file-item .status.done { color: #34c759; }
-        .file-item .status.pending { color: #f5a623; }
-        .file-item .status.error { color: #ff3b30; }
-        .offline-badge { display: none; background: #ff6b6b; color: white; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 999; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); letter-spacing: 0.5px; }
-        .offline-badge.show { display: block; }
-        .close-btn { position: fixed; top: 12px; right: 12px; width: 44px; height: 44px; background: rgba(0, 0, 0, 0.04); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #1c2e4a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; cursor: pointer; z-index: 999; transition: background 0.2s; box-shadow: 0 2px 12px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.2); line-height: 1; }
-        .close-btn:active { background: rgba(0, 0, 0, 0.1); transform: scale(0.92); }
-        .spinner-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 40px; justify-content: center; align-items: center; flex-direction: column; z-index: 20; }
-        .spinner-overlay.active { display: flex; }
-        .spinner { width: 48px; height: 48px; border: 4px solid rgba(0, 122, 255, 0.15); border-top: 4px solid #007aff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text { margin-top: 14px; font-size: 15px; color: #1c2e4a; font-weight: 500; }
-        .loading-dots::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
-        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: ''; } }
-        #message { margin-top: 18px; font-size: 15px; min-height: 26px; font-weight: 500; padding: 0 6px; }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007aff, #34c759);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .download-details {
+            display: flex;
+            justify-content: center;
+            font-size: 11px;
+            color: #8e9aab;
+            margin-top: 6px;
+            gap: 16px;
+        }
+
+        .download-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            width: 100%;
+        }
+        .download-btn:active {
+            transform: scale(0.95);
+        }
+        .download-btn:disabled {
+            background: #b0bac9;
+            cursor: not-allowed;
+        }
+
+        /* HIDE FILE LIST - Removed completely */
+        .file-list {
+            display: none !important;
+        }
+
+        .offline-badge {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .offline-badge.show {
+            display: block;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #1c2e4a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 999;
+            transition: background 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.2);
+            line-height: 1;
+        }
+        .close-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(0.92);
+        }
+
+        .spinner-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 20;
+        }
+        .spinner-overlay.active {
+            display: flex;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(0, 122, 255, 0.15);
+            border-top: 4px solid #007aff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            margin-top: 14px;
+            font-size: 15px;
+            color: #1c2e4a;
+            font-weight: 500;
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.4s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        #message {
+            margin-top: 18px;
+            font-size: 15px;
+            min-height: 26px;
+            font-weight: 500;
+            padding: 0 6px;
+        }
         .error { color: #ff3b30; }
         .success { color: #34c759; }
         .info { color: #007aff; }
         .warning { color: #f5a623; }
-        .timer { font-size: 14px; color: #5b6f87; margin-top: 10px; font-weight: 500; background: rgba(0, 0, 0, 0.02); padding: 8px 16px; border-radius: 40px; display: inline-block; }
-        .trial-used { background: rgba(255, 59, 48, 0.08); padding: 12px 16px; border-radius: 20px; margin-top: 16px; border: 1px solid rgba(255, 59, 48, 0.15); font-size: 14px; color: #c0392b; font-weight: 500; }
-        .security-badge { font-size: 12px; color: #8e9aab; margin-top: 24px; opacity: 0.7; letter-spacing: 0.3px; }
-        .cache-info { font-size: 11px; color: #8e9aab; margin-top: 4px; opacity: 0.6; }
-        .file-count-badge { display: inline-block; background: rgba(0, 122, 255, 0.1); padding: 2px 12px; border-radius: 20px; font-size: 11px; color: #007aff; font-weight: 600; margin-left: 8px; }
-        .auto-download-badge { display: inline-block; background: rgba(52, 199, 89, 0.15); color: #34c759; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-left: 6px; animation: pulse 2s infinite; }
-        .auto-download-badge.paused { background: rgba(245, 166, 35, 0.15); color: #f5a623; animation: none; }
-        .auto-download-badge.error { background: rgba(255, 59, 48, 0.15); color: #ff3b30; animation: none; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .ios-persist-badge { display: inline-block; background: rgba(0, 122, 255, 0.1); color: #007aff; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-left: 6px; }
-        @media (max-width: 420px) { .container { padding: 24px 18px 22px; border-radius: 32px; } h1 { font-size: 28px; } input[type="text"] { font-size: 20px; padding: 14px 16px; } button { font-size: 16px; padding: 15px 16px; } }
-        @supports (padding: max(0px)) { .container { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); } }
+
+        .timer {
+            font-size: 14px;
+            color: #5b6f87;
+            margin-top: 10px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .trial-used {
+            background: rgba(255, 59, 48, 0.08);
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            border: 1px solid rgba(255, 59, 48, 0.15);
+            font-size: 14px;
+            color: #c0392b;
+            font-weight: 500;
+        }
+
+        .security-badge {
+            font-size: 12px;
+            color: #8e9aab;
+            margin-top: 24px;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+        }
+
+        .cache-info {
+            font-size: 11px;
+            color: #8e9aab;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        .file-count-badge {
+            display: inline-block;
+            background: rgba(0, 122, 255, 0.1);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #007aff;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .auto-download-badge {
+            display: inline-block;
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+            animation: pulse 2s infinite;
+        }
+        .auto-download-badge.paused {
+            background: rgba(245, 166, 35, 0.15);
+            color: #f5a623;
+            animation: none;
+        }
+        .auto-download-badge.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            animation: none;
+        }
+
+        .ios-persist-badge {
+            display: inline-block;
+            background: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 24px 18px 22px;
+                border-radius: 32px;
+            }
+            h1 { font-size: 28px; }
+            input[type="text"] { font-size: 20px; padding: 14px 16px; }
+            button { font-size: 16px; padding: 15px 16px; }
+        }
+
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(24px, env(safe-area-inset-left));
+                padding-right: max(24px, env(safe-area-inset-right));
+            }
+        }
     </style>
 </head>
 <body>
@@ -114,6 +489,7 @@
             <button class="buy-button" id="buyBtn">🛒 Buy Code</button>
         </div>
 
+        <!-- Download Section - Simplified (no file list) -->
         <div class="download-section" id="downloadSection">
             <div class="download-header">
                 <span class="download-title">
@@ -133,7 +509,8 @@
                 <span id="downloadSpeed">0 MB/s</span>
             </div>
             <button class="download-btn" id="downloadBtn">⬇️ Download Course</button>
-            <div class="file-list" id="fileList"></div>
+            <!-- FILE LIST REMOVED - Hidden completely -->
+            <div class="file-list" id="fileList" style="display:none;"></div>
             <div class="cache-info" id="cacheInfo">📦 Checking cache...</div>
         </div>
 
@@ -145,113 +522,156 @@
 
     <script>
         // ============================================================
-        // iOS PERSISTENT STORAGE FIX
+        // iOS PERSISTENT STORAGE - Data မပျက်စေရန်
         // ============================================================
         (function() {
             // Detect iOS
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             
+            // Detect if in Private Browsing
+            let isPrivate = false;
+            try {
+                localStorage.setItem('_test_', '1');
+                localStorage.removeItem('_test_');
+            } catch (e) {
+                isPrivate = true;
+                console.log('🔒 Private browsing detected');
+            }
+            
+            // ✅ CRITICAL FIX: Use Cookie as ultimate backup for iOS
+            // Cookies က Clear History လုပ်ရင်လည်း မပျက်ပါဘူး
+            function setCookie(name, value, days) {
+                const expires = new Date(Date.now() + days * 86400000).toUTCString();
+                document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+            }
+            
+            function getCookie(name) {
+                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                if (match) return decodeURIComponent(match[2]);
+                return null;
+            }
+            
+            function deleteCookie(name) {
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            }
+            
             if (isIOS) {
-                console.log('🍎 iOS detected - using persistent storage');
+                console.log('🍎 iOS detected - using persistent storage (Cookie + localStorage)');
                 document.getElementById('iosPersistBadge').style.display = 'inline';
                 
-                // Request persistent storage for iOS
+                // Request persistent storage
                 if ('storage' in navigator && 'persist' in navigator.storage) {
                     navigator.storage.persist().then(function(persisted) {
                         console.log('📦 Storage persisted:', persisted);
-                        if (persisted) {
-                            document.getElementById('cacheInfo').textContent = '🍎 iOS: Persistent storage enabled';
-                        }
                     });
                 }
                 
-                // Use sessionStorage as backup for iOS
-                // Override localStorage.getItem and setItem to use sessionStorage as fallback
-                const originalGetItem = Storage.prototype.getItem;
-                const originalSetItem = Storage.prototype.setItem;
-                const originalRemoveItem = Storage.prototype.removeItem;
-                
-                // Create a backup storage mechanism
-                const backupStorage = {
-                    data: {},
-                    getItem: function(key) {
-                        try {
-                            // Try sessionStorage first
-                            const val = sessionStorage.getItem('ios_backup_' + key);
-                            if (val !== null) return val;
-                            // Then try our in-memory backup
-                            return this.data[key] || null;
-                        } catch (e) {
-                            return this.data[key] || null;
-                        }
-                    },
-                    setItem: function(key, value) {
-                        try {
-                            sessionStorage.setItem('ios_backup_' + key, value);
-                            this.data[key] = value;
-                        } catch (e) {
-                            this.data[key] = value;
-                        }
-                    },
-                    removeItem: function(key) {
-                        try {
-                            sessionStorage.removeItem('ios_backup_' + key);
-                            delete this.data[key];
-                        } catch (e) {
-                            delete this.data[key];
-                        }
-                    }
+                // ============================================================
+                // ULTIMATE STORAGE LAYER: Cookie + localStorage + sessionStorage
+                // Clear History လုပ်ရင်လည်း Cookie မပျက်
+                // ============================================================
+                const storageKeys = {
+                    gateExpiry: 'accessGateExpiry',
+                    trialData: 'prekgPhonicsTrial',
+                    systemData: 'prekgPhonicsSystem',
+                    secureData: 'prekgPhonicsData'
                 };
                 
-                // Enhanced localStorage that tries both
-                window.iosSafeLocalStorage = {
-                    getItem: function(key) {
-                        try {
+                // Save all storage to cookies as backup
+                function backupToCookies() {
+                    try {
+                        const keys = Object.values(storageKeys);
+                        for (const key of keys) {
                             const val = localStorage.getItem(key);
-                            if (val !== null) return val;
-                            return backupStorage.getItem(key);
-                        } catch (e) {
-                            return backupStorage.getItem(key);
+                            if (val !== null && val !== undefined) {
+                                setCookie('backup_' + key, val, 365); // 1 year
+                            }
                         }
-                    },
-                    setItem: function(key, value) {
-                        try {
-                            localStorage.setItem(key, value);
-                            backupStorage.setItem(key, value);
-                        } catch (e) {
-                            backupStorage.setItem(key, value);
+                        // Also backup trial data
+                        const trial = localStorage.getItem('prekgPhonicsTrial');
+                        if (trial) {
+                            setCookie('backup_prekgPhonicsTrial', trial, 365);
                         }
-                    },
-                    removeItem: function(key) {
-                        try {
-                            localStorage.removeItem(key);
-                            backupStorage.removeItem(key);
-                        } catch (e) {
-                            backupStorage.removeItem(key);
+                    } catch (e) {
+                        console.log('Cookie backup error:', e);
+                    }
+                }
+                
+                // Restore from cookies if localStorage is empty
+                function restoreFromCookies() {
+                    try {
+                        const keys = Object.values(storageKeys);
+                        let restored = false;
+                        for (const key of keys) {
+                            const cookieVal = getCookie('backup_' + key);
+                            if (cookieVal && !localStorage.getItem(key)) {
+                                localStorage.setItem(key, cookieVal);
+                                restored = true;
+                                console.log('🍪 Restored from cookie:', key);
+                            }
                         }
+                        // Restore trial data
+                        const trialCookie = getCookie('backup_prekgPhonicsTrial');
+                        if (trialCookie && !localStorage.getItem('prekgPhonicsTrial')) {
+                            localStorage.setItem('prekgPhonicsTrial', trialCookie);
+                            restored = true;
+                        }
+                        return restored;
+                    } catch (e) {
+                        console.log('Restore from cookies error:', e);
+                        return false;
+                    }
+                }
+                
+                // Override localStorage methods to backup to cookies
+                const originalSetItem = localStorage.setItem;
+                const originalRemoveItem = localStorage.removeItem;
+                const originalClear = localStorage.clear;
+                
+                localStorage.setItem = function(key, value) {
+                    originalSetItem.call(localStorage, key, value);
+                    // Backup important keys to cookie
+                    if (Object.values(storageKeys).includes(key)) {
+                        setCookie('backup_' + key, value, 365);
                     }
                 };
                 
-                // Redirect localStorage calls to our safe version
-                const originalLocalStorage = window.localStorage;
-                Object.defineProperty(window, 'localStorage', {
-                    get: function() {
-                        return {
-                            getItem: function(key) { return iosSafeLocalStorage.getItem(key); },
-                            setItem: function(key, value) { iosSafeLocalStorage.setItem(key, value); },
-                            removeItem: function(key) { iosSafeLocalStorage.removeItem(key); },
-                            clear: function() { 
-                                try { originalLocalStorage.clear(); } catch(e) {}
-                                backupStorage.data = {};
-                            },
-                            key: function(index) { return originalLocalStorage.key(index); },
-                            get length() { return originalLocalStorage.length || 0; }
-                        };
+                localStorage.removeItem = function(key) {
+                    originalRemoveItem.call(localStorage, key);
+                    if (Object.values(storageKeys).includes(key)) {
+                        deleteCookie('backup_' + key);
+                    }
+                };
+                
+                localStorage.clear = function() {
+                    originalClear.call(localStorage);
+                    // Don't clear cookies to preserve data
+                    console.log('🛡️ localStorage cleared but cookies preserved');
+                };
+                
+                // Restore data on load
+                const restored = restoreFromCookies();
+                if (restored) {
+                    console.log('🍪 Data restored from cookies after clear history');
+                }
+                
+                // Periodically backup to cookies (every minute)
+                setInterval(backupToCookies, 60000);
+                
+                // Backup when page is about to unload
+                window.addEventListener('beforeunload', backupToCookies);
+                window.addEventListener('pagehide', backupToCookies);
+                
+                // Handle visibility change (when app goes to background)
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        backupToCookies();
                     }
                 });
                 
-                console.log('🍎 iOS: Safe localStorage enabled');
+                console.log('🍎 iOS: Ultimate storage layer enabled (Cookie + localStorage)');
+                console.log('🛡️ Data will survive clear history!');
             }
         })();
 
@@ -294,38 +714,52 @@
                 this.setupEventListeners();
                 this.updateUI();
                 this.checkOfflineStatus();
-                this.updateFileList();
                 
                 document.getElementById('totalSize').textContent = '/ ' + (this.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
                 await this.checkAutoDownload();
             }
 
             // ============================================================
-            // iOS FRIENDLY - Check redirect with persistent storage
+            // SAFE STORAGE METHODS (with Cookie backup)
+            // ============================================================
+            getGateExpiry() {
+                try {
+                    const val = localStorage.getItem('accessGateExpiry');
+                    if (val === null) return null;
+                    return parseInt(val, 10);
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            getTrialData() {
+                try {
+                    const raw = localStorage.getItem('prekgPhonicsTrial');
+                    if (raw) return JSON.parse(atob(raw));
+                } catch (_) {}
+                return null;
+            }
+
+            // ============================================================
+            // AUTO-DOWNLOAD
             // ============================================================
             async checkAutoDownload() {
-                // Check if already downloaded
                 const allDownloaded = await this.isAllDownloaded();
                 if (allDownloaded) {
                     console.log('✅ Course already downloaded');
                     return;
                 }
                 
-                // Check gate expiry using safe localStorage
                 const gateExpiry = this.getGateExpiry();
                 const trialData = this.getTrialData();
                 
-                // If access is granted, auto-download and redirect
                 if ((gateExpiry !== null && gateExpiry > Date.now()) || 
                     (trialData && trialData.expires > Date.now())) {
                     
                     console.log('🚀 Access granted - starting auto-download');
                     this.startAutoDownload();
                     
-                    // After download completes, redirect will happen automatically
-                    // But if user manually navigates away, we'll redirect on next load
                     setTimeout(() => {
-                        // Check if download is complete
                         this.isAllDownloaded().then(function(done) {
                             if (done) {
                                 console.log('✅ Download complete, redirecting...');
@@ -355,30 +789,7 @@
             }
 
             // ============================================================
-            // SAFE STORAGE METHODS
-            // ============================================================
-            getGateExpiry() {
-                try {
-                    // Try iOS safe localStorage
-                    const val = localStorage.getItem('accessGateExpiry');
-                    if (val === null) return null;
-                    return parseInt(val, 10);
-                } catch (e) {
-                    console.warn('Gate expiry read error:', e);
-                    return null;
-                }
-            }
-
-            getTrialData() {
-                try {
-                    const raw = localStorage.getItem('prekgPhonicsTrial');
-                    if (raw) return JSON.parse(atob(raw));
-                } catch (_) {}
-                return null;
-            }
-
-            // ============================================================
-            // REST OF THE CLASS
+            // DATABASE METHODS
             // ============================================================
             initIndexedDB() {
                 return new Promise((resolve, reject) => {
@@ -521,6 +932,9 @@
                 });
             }
 
+            // ============================================================
+            // DOWNLOAD METHODS
+            // ============================================================
             setupEventListeners() {
                 window.addEventListener('online', () => {
                     document.getElementById('offlineBadge').classList.remove('show');
@@ -642,13 +1056,11 @@
                         this.downloadedSize += existing.size || 0;
                         this.currentFileIndex = i + 1;
                         this.updateUI();
-                        this.updateFileList();
                         continue;
                     }
                     
                     try {
                         this.fileStatus[file.id] = { status: 'downloading' };
-                        this.updateFileList();
                         
                         const response = await fetch(file.path);
                         if (!response.ok) {
@@ -665,7 +1077,6 @@
                         this.currentFileIndex = i + 1;
                         
                         this.updateUI();
-                        this.updateFileList();
                         
                         if (i % 3 === 0) {
                             await this.saveProgress();
@@ -674,8 +1085,7 @@
                     } catch (error) {
                         console.error('Download error for', file.id, error);
                         this.fileStatus[file.id] = { status: 'error', error: error.message };
-                        this.updateFileList();
-                        this.showMessage('⚠️ Error downloading: ' + file.id, 'error');
+                        this.showMessage('⚠️ Error downloading file', 'error');
                         
                         let retries = 0;
                         while (retries < 3 && !this.isPaused) {
@@ -690,7 +1100,6 @@
                                     this.fileStatus[file.id] = { status: 'done' };
                                     this.currentFileIndex = i + 1;
                                     this.updateUI();
-                                    this.updateFileList();
                                     break;
                                 }
                             } catch (e) {
@@ -724,7 +1133,6 @@
                     await this.saveProgress();
                     await this.cacheForOffline();
                     
-                    // iOS: Redirect to msandmf1.html after download
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                     if (isIOS) {
@@ -796,31 +1204,6 @@
                 }
             }
 
-            updateFileList() {
-                const list = document.getElementById('fileList');
-                let html = '';
-                const maxDisplay = 20;
-                let count = 0;
-                for (const [id, status] of Object.entries(this.fileStatus)) {
-                    if (count >= maxDisplay) {
-                        html += `<div class="file-item"><span>... and ${Object.keys(this.fileStatus).length - maxDisplay} more</span></div>`;
-                        break;
-                    }
-                    const statusText = status.status === 'done' ? '✅' : 
-                                      status.status === 'downloading' ? '⏳' : 
-                                      status.status === 'error' ? '❌' : '⏸️';
-                    const className = status.status === 'done' ? 'done' : 
-                                     status.status === 'error' ? 'error' : 'pending';
-                    const fileName = id.split('/').pop();
-                    html += `<div class="file-item">
-                        <span>${fileName}</span>
-                        <span class="status ${className}">${statusText}</span>
-                    </div>`;
-                    count++;
-                }
-                list.innerHTML = html || '<div style="text-align:center;color:#8e9aab;">No files</div>';
-            }
-
             async checkOfflineStatus() {
                 const allDownloaded = await this.isAllDownloaded();
                 if (allDownloaded) {
@@ -837,7 +1220,6 @@
                         document.getElementById('downloadStatus').className = 'download-status paused';
                     }
                 }
-                this.updateFileList();
             }
 
             async getStorageEstimate() {
@@ -1018,12 +1400,10 @@
                     hideLoading();
                     showSuccess('✅ Access granted! Downloading content...');
                     
-                    // iOS: Redirect after download
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                     
                     if (isIOS) {
-                        // iOS: Stay on page to download, then redirect
                         showInfo('🍎 iOS: Downloading content for offline use...');
                         setTimeout(() => {
                             window.location.href = matchedCode.url;
@@ -1099,12 +1479,10 @@
 
                 const gateExpiry = getGateExpiry();
                 if (gateExpiry !== null && gateExpiry > Date.now()) {
-                    // iOS: Check if we should redirect or stay
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                     
                     if (isIOS) {
-                        // iOS: Check if files are downloaded
                         downloadManager.isAllDownloaded().then(function(done) {
                             if (done) {
                                 window.location.href = 'msandmf1.html';
