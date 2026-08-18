@@ -529,7 +529,6 @@
                 this.checkOfflineStatus();
                 this.updateFileList();
                 
-                // Show total size
                 document.getElementById('totalSize').textContent = '/ ' + (this.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
             }
 
@@ -559,12 +558,10 @@
             }
 
             async getFileSizes() {
-                // If we already have sizes from course_files.js, use them
                 if (this.courseFiles.length > 0 && this.courseFiles[0].size > 0) {
                     return;
                 }
                 
-                // Otherwise try to get sizes from server
                 for (let i = 0; i < this.courseFiles.length; i++) {
                     const file = this.courseFiles[i];
                     try {
@@ -575,7 +572,6 @@
                             this.totalSize += file.size;
                         }
                     } catch (e) {
-                        // If can't get size, use default
                         file.size = 1024 * 1024;
                         this.totalSize += file.size;
                     }
@@ -869,6 +865,9 @@
                 }
             }
 
+            // ============================================================
+            // UPDATED: Added 'cur' to content types
+            // ============================================================
             getContentType(filename) {
                 const ext = filename.split('.').pop().toLowerCase();
                 const types = {
@@ -885,7 +884,43 @@
                     'mp4': 'video/mp4',
                     'webm': 'video/webm',
                     'pdf': 'application/pdf',
-                    'xml': 'application/xml'
+                    'xml': 'application/xml',
+                    'cur': 'image/x-win-bitmap',  // ✅ Added .cur support
+                    'ico': 'image/x-icon',        // ✅ Added .ico support
+                    'woff': 'font/woff',
+                    'woff2': 'font/woff2',
+                    'ttf': 'font/ttf',
+                    'eot': 'application/vnd.ms-fontobject',
+                    'otf': 'font/otf',
+                    'txt': 'text/plain',
+                    'csv': 'text/csv',
+                    'zip': 'application/zip',
+                    'rar': 'application/x-rar-compressed',
+                    '7z': 'application/x-7z-compressed',
+                    'exe': 'application/x-msdownload',
+                    'dll': 'application/x-msdownload',
+                    'swf': 'application/x-shockwave-flash',
+                    'flv': 'video/x-flv',
+                    'avi': 'video/x-msvideo',
+                    'mov': 'video/quicktime',
+                    'wmv': 'video/x-ms-wmv',
+                    'flac': 'audio/flac',
+                    'wav': 'audio/wav',
+                    'ogg': 'audio/ogg',
+                    'm4a': 'audio/mp4',
+                    'aac': 'audio/aac',
+                    'webp': 'image/webp',
+                    'bmp': 'image/bmp',
+                    'tiff': 'image/tiff',
+                    'psd': 'image/vnd.adobe.photoshop',
+                    'ai': 'application/illustrator',
+                    'eps': 'application/postscript',
+                    'ppt': 'application/vnd.ms-powerpoint',
+                    'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    'doc': 'application/msword',
+                    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'xls': 'application/vnd.ms-excel',
+                    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 };
                 return types[ext] || 'application/octet-stream';
             }
@@ -1286,7 +1321,16 @@
                     'index.html',
                     'msandmf1.html',
                     'course_files.js',
+                    'manifest.json',
+                    'offline.html',
+                    'icons/icon-72.png',
+                    'icons/icon-96.png',
+                    'icons/icon-128.png',
+                    'icons/icon-144.png',
+                    'icons/icon-152.png',
                     'icons/icon-192.png',
+                    'icons/icon-256.png',
+                    'icons/icon-384.png',
                     'icons/icon-512.png'
                 ];
 
@@ -1296,6 +1340,18 @@
                             .then(function(cache) {
                                 return cache.addAll(urlsToCache);
                             })
+                    );
+                });
+
+                self.addEventListener('activate', function(event) {
+                    event.waitUntil(
+                        caches.keys().then(function(keyList) {
+                            return Promise.all(keyList.map(function(key) {
+                                if (key !== CACHE_NAME) {
+                                    return caches.delete(key);
+                                }
+                            }));
+                        })
                     );
                 });
 
