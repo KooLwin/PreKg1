@@ -329,7 +329,7 @@
                         this.isAllDownloaded().then(function(done) {
                             if (done) {
                                 console.log('✅ Download complete, redirecting...');
-                                window.location.href = 'nursery.html';
+                                window.location.href = 'msandmf1.html';
                             }
                         });
                     }, 2000);
@@ -724,13 +724,13 @@
                     await this.saveProgress();
                     await this.cacheForOffline();
                     
-                    // iOS: Redirect to nursery.html after download
+                    // iOS: Redirect to msandmf1.html after download
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                     if (isIOS) {
-                        console.log('🍎 iOS: Redirecting to nursery.html');
+                        console.log('🍎 iOS: Redirecting to msandmf1.html');
                         setTimeout(() => {
-                            window.location.href = 'nursery.html';
+                            window.location.href = 'msandmf1.html';
                         }, 1000);
                     }
                 }
@@ -1107,14 +1107,14 @@
                         // iOS: Check if files are downloaded
                         downloadManager.isAllDownloaded().then(function(done) {
                             if (done) {
-                                window.location.href = 'nursery.html';
+                                window.location.href = 'msandmf1.html';
                             } else {
                                 console.log('🍎 iOS: Files not downloaded, staying on index');
                                 showInfo('🍎 iOS: Downloading content for offline use...');
                             }
                         });
                     } else {
-                        window.location.href = 'nursery.html';
+                        window.location.href = 'msandmf1.html';
                         return;
                     }
                 }
@@ -1132,7 +1132,7 @@
                                 }
                             });
                         } else {
-                            window.location.href = 'nursery.html';
+                            window.location.href = 'msandmf1.html';
                             return;
                         }
                     } else {
@@ -1200,7 +1200,7 @@
             const swCode = `
                 const CACHE_NAME = 'ispring-course-v1';
                 const urlsToCache = [
-                    '.', 'index.html', 'nursery.html', 'course_files.js',
+                    '.', 'index.html', 'msandmf1.html', 'course_files.js',
                     'manifest.json', 'offline.html',
                     'icons/icon-72.png', 'icons/icon-96.png', 'icons/icon-128.png',
                     'icons/icon-144.png', 'icons/icon-152.png', 'icons/icon-192.png',
